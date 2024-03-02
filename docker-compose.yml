@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  autonity:
+    image: ghcr.io/autonity/autonity:latest
+    command: >
+      --datadir $HOME/autonity-chaindata
+      --piccadilly
+      --http
+      --http.addr 0.0.0.0
+      --http.api aut,eth,net,txpool,web3,admin
+      --http.vhosts *
+      --ws
+      --ws.addr 0.0.0.0
+      --ws.api aut,eth,net,txpool,web3,admin
+      --nat extip: 
+    volumes:
+      - $HOME/autonity-chaindata:/autonity-chaindata
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "6060:6060"
+    stdin_open: true
+    tty: true
+    container_name: autonity
+    restart: "no"
+    networks:
+      - autonity_network
+
+  oracle:
+    image: ghcr.io/autonity/autonity-oracle-piccadilly:latest
+    container_name: oracle
+    volumes:
+      - $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key
+      - $HOME/.autonity/oracle/plugins-conf.yml:/autoracle/plugins-conf.yml
+    stdin_open: true
+    tty: true
+    command: >
+      -tip="1"
+      -key.file="/autoracle/oracle.key"
+      -key.password="${key.password}"
+      -ws="ws://autonity:8546"
+      -plugin.dir="/usr/local/bin/plugins/"
+      -plugin.conf="/autoracle/plugins-conf.yml"
+    restart: "no"
+    depends_on:
+      - autonity
+
+networks:
+  autonity_network:
+    driver: bridge
