@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Docker Location
+DOCKER=/usr/bin/docker
+
+# ethkey Location
+ETHKEY=/usr/bin/ethkey
+
+# aut Location
+AUT=/root/.local/bin/aut
+
+# Oracle Key File Location
+ORACLE_KEY_FILE=/root/.autonity/keystore/oracle.key
+
+# Load password from .env file
+source ~/autonity/.env
+
+# Retrieve private key from oracle key file
+PRIVATE_KEY_ORACLE=$($ETHKEY inspect --private $ORACLE_KEY_FILE <<< "$KEYPASSWORD" | grep "Private key" | awk '{print $3}')
+
+# Retrieve treasury account address
+TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile $ORACLE_KEY_FILE | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+
+# Retrieve ENODE from aut node info output
+ENODE=$($AUT node info | grep "admin_enode" | awk '{print $2}')
+
+# Retrieve CONSENSUS_KEY from ethkey autinspect output
+CONSENSUS_KEY=$(/usr/bin/ethkey autinspect ~/autonity-chaindata/autonity/autonitykeys | grep "Consensus Public Key" | awk '{print $4}')
+
+# Retrieve ORACLE from aut account info output
+ORACLE=$($AUT account info --keyfile /root/.autonity/keystore/oracle.key | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+
+# Run Docker command to register validator and send it to the blockchain
+PROOF=$($DOCKER run -t -i \
+  --volume $HOME/autonity-chaindata:/autonity-chaindata \
+  --volume $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key \
+  --name proof \
+  --rm \
+  ghcr.io/autonity/autonity:latest \
+  genOwnershipProof \
+  --autonitykeys /autonity-chaindata/autonity/autonitykeys \
+  --oraclekeyhex $PRIVATE_KEY_ORACLE \
+  $TREASURY_ACCOUNT_ADDRESS)
+
+# Run aut validator register command with PROOF and send it to the blockchain, using passphrase from KEYPASSWORD
+export 'KEYFILEPWD'="$KEYPASSWORD"
+$AUT validator register $ENODE $ORACLE $CONSENSUS_KEY | $AUT tx sign - | $AUT tx send -
