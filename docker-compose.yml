@@ -4,7 +4,7 @@ services:
   autonity:
     image: ghcr.io/autonity/autonity:latest
     command: >
-      --datadir $HOME/autonity-chaindata
+      --datadir /autonity-chaindata
       --piccadilly
       --http
       --http.addr 0.0.0.0
