@@ -1,32 +1,29 @@
 #!/usr/bin/expect -f
 
-# Define the aut location
+# Define the location of aut
 set AUT_BIN "/root/.local/bin/aut"
 set KEYSTORE_DIR "$env(HOME)/.autonity/keystore"
 
 # Create the keystore folder if it does not exist
 exec mkdir -p "$KEYSTORE_DIR"
 
-# Ask the user to enter the password
-stty -echo
-send_user "Enter the password for the account: "
-expect_user -re "(.*)\n"
-set PASSWORD $expect_out(1,string)
-stty echo
-send_user "\n"
-
-# Initialize variables to store addresses
-set oracle_address ""
-set treasury_address ""
+# Read the value of KEYPASSWORD from the .env file
+set env_file [exec cat /root/autonity/.env]
+foreach line [split $env_file \n] {
+    if {[regexp {KEYPASSWORD=(.*)} $line -> password]} {
+        set KEYPASSWORD $password
+        break
+    }
+}
 
 # Check if aut exists at the expected location
 if { [file executable $AUT_BIN] } {
     # Run the aut command to create a new account using oracle.key keystore
     spawn "$AUT_BIN" account new -k "$KEYSTORE_DIR/oracle.key"
     expect "Password for new account:"
-    send "$PASSWORD\r"
+    send "$KEYPASSWORD\r"
     expect "Confirm account password:"
-    send "$PASSWORD\r"
+    send "$KEYPASSWORD\r"
     expect {
         "0x*" {
             set oracle_address $expect_out(0,string)
@@ -37,9 +34,9 @@ if { [file executable $AUT_BIN] } {
     # Run the aut command to create a new account using treasury.key keystore
     spawn "$AUT_BIN" account new -k "$KEYSTORE_DIR/treasury.key"
     expect "Password for new account:"
-    send "$PASSWORD\r"
+    send "$KEYPASSWORD\r"
     expect "Confirm account password:"
-    send "$PASSWORD\r"
+    send "$KEYPASSWORD\r"
     expect {
         "0x*" {
             set treasury_address $expect_out(0,string)
