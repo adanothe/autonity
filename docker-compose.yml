@@ -13,7 +13,7 @@ services:
       --ws
       --ws.addr 0.0.0.0
       --ws.api aut,eth,net,txpool,web3,admin
-      --nat extip:yourip
+      --nat extip:${YOURIP}
     volumes:
       - $HOME/autonity-chaindata:/autonity-chaindata
     ports:
@@ -28,6 +28,8 @@ services:
     restart: "no"
     networks:
       - autonity_network
+    environment:
+      - YOURIP=$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2)
 
   oracle:
     image: ghcr.io/autonity/autonity-oracle-piccadilly:latest
@@ -40,13 +42,16 @@ services:
     command: >
       -tip="1"
       -key.file="/autoracle/oracle.key"
-      -key.password="oraclepw"
-      -ws="ws://autonity:8546"
+      -key.password=$(cat /root/autonity/.env | grep KEYPASSWORD | cut -d'=' -f2)
+      -ws="ws://$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2):8546"
       -plugin.dir="/usr/local/bin/plugins/"
       -plugin.conf="/autoracle/plugins-conf.yml"
     restart: "no"
     depends_on:
       - autonity
+    environment:
+      - KEYPASSWORD=$(cat /root/autonity/.env | grep KEYPASSWORD | cut -d'=' -f2)
+      - YOURIP=$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2)
 
 networks:
   autonity_network:
