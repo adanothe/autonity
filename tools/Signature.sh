@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Get the parent directory of the script
-PARENT_DIR="$(dirname "$(pwd)")"
+REPO_DIR="autonity"
+PARENT_DIR="$(dirname "$(pwd)/$REPO_DIR")"
 
 # Load environment variables from .env file in the parent directory
 ENV_FILE="$PARENT_DIR/.env"
