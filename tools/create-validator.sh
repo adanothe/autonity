@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # Docker Location
-DOCKER=/usr/bin/docker
-
+DOCKER=$(which docker)
 # ethkey Location
-ETHKEY=/usr/bin/ethkey
+ETHKEY=$(which ethkey)
 
 # aut Location
-AUT=/root/.local/bin/aut
+AUT=$(which aut)
 
 # Oracle Key File Location
 ORACLE_KEY_FILE=/root/.autonity/keystore/oracle.key
