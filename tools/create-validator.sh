@@ -35,8 +35,7 @@ echo "Consensus key retrieved: $CONSENSUS_KEY"
 
 # Retrieve ORACLE from aut account info output
 echo "Running Docker command to register validator and send it to the blockchain..."
-PROOF=$( \
-  $DOCKER run -t -i \
+PROOF=$($DOCKER run -t -i \
     --volume $HOME/autonity-chaindata:/autonity-chaindata \
     --volume $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key \
     --name proof \
