@@ -15,7 +15,7 @@ else
 fi
 
 # Define the location of aut
-AUT="/root/.local/bin/aut"
+AUT=$(which aut)
 
 # Define the location of the key file
 KEYFILE="/root/.autonity/keystore/treasury.key"
