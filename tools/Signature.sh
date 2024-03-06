@@ -2,7 +2,7 @@
 
 # Get the parent directory of the script
 REPO_DIR="autonity"
-PARENT_DIR="$(dirname "$(pwd)/$REPO_DIR")"
+PARENT_DIR="$HOME/$REPO_DIR")"
 
 # Load environment variables from .env file in the parent directory
 ENV_FILE="$PARENT_DIR/.env"
