@@ -34,21 +34,20 @@ CONSENSUS_KEY=$(/usr/bin/ethkey autinspect ~/autonity-chaindata/autonity/autonit
 echo "Consensus key retrieved: $CONSENSUS_KEY"
 
 # Retrieve ORACLE from aut account info output
-ORACLE=$($AUT account info --keyfile /root/.autonity/keystore/oracle.key | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
-echo "Oracle account retrieved: $ORACLE"
-
-# Run Docker command to register validator and send it to the blockchain
 echo "Running Docker command to register validator and send it to the blockchain..."
-PROOF=$($DOCKER run -t -i \
-  --volume $HOME/autonity-chaindata:/autonity-chaindata \
-  --volume $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key \
-  --name proof \
-  --rm \
-  ghcr.io/autonity/autonity:latest \
-  genOwnershipProof \
-  --autonitykeys /autonity-chaindata/autonity/autonitykeys \
-  --oraclekeyhex $PRIVATE_KEY_ORACLE \
-  $TREASURY_ACCOUNT_ADDRESS)
+PROOF=$( \
+  $DOCKER run -t -i \
+    --volume $HOME/autonity-chaindata:/autonity-chaindata \
+    --volume $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key \
+    --name proof \
+    --rm \
+    ghcr.io/autonity/autonity:latest \
+    genOwnershipProof \
+    --autonitykeys /autonity-chaindata/autonity/autonitykeys \
+    --oraclekeyhex $PRIVATE_KEY_ORACLE \
+    $TREASURY_ACCOUNT_ADDRESS \
+    | tr -d $'\r' \
+)
 echo "Ownership proof generated: $PROOF"
 
 # Run aut validator register command with PROOF and send it to the blockchain, using passphrase from KEYPASSWORD
