@@ -26,7 +26,7 @@ TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile $TREASURY_KEY_FILE | grep
 echo "Treasury account address retrieved: $TREASURY_ACCOUNT_ADDRESS"
 
 # Retrieve ENODE from aut node info output
-ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@:]*')
+ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
 echo "ENODE retrieved: $ENODE"
 
 # Retrieve CONSENSUS_KEY from ethkey autinspect output
