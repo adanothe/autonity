@@ -11,6 +11,9 @@ AUT=$(which aut)
 # Oracle Key File Location
 ORACLE_KEY_FILE=/root/.autonity/keystore/oracle.key
 
+# Treasury Key File Location
+TREASURY_KEY_FILE=/root/.autonity/keystore/treasury.key
+
 # Load password from .env file
 source ~/autonity/.env
 
@@ -19,7 +22,7 @@ PRIVATE_KEY_ORACLE=$($ETHKEY inspect --private $ORACLE_KEY_FILE <<< "$KEYPASSWOR
 echo "Private key of oracle retrieved: $PRIVATE_KEY_ORACLE"
 
 # Retrieve treasury account address
-TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile $ORACLE_KEY_FILE | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile $TREASURY_KEY_FILE | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 echo "Treasury account address retrieved: $TREASURY_ACCOUNT_ADDRESS"
 
 # Retrieve ENODE from aut node info output
