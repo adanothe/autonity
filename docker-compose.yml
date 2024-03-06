@@ -13,7 +13,7 @@ services:
       --ws
       --ws.addr 0.0.0.0
       --ws.api aut,eth,net,txpool,web3,admin
-      --nat extip:${YOURIP}
+      --nat extip:$YOURIP
     volumes:
       - $HOME/autonity-chaindata:/autonity-chaindata
     ports:
@@ -42,8 +42,8 @@ services:
     command: >
       -tip="1"
       -key.file="/autoracle/oracle.key"
-      -key.password=$(cat /root/autonity/.env | grep KEYPASSWORD | cut -d'=' -f2)
-      -ws="ws://$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2):8546"
+      -key.password=$KEYPASSWORD
+      -ws="ws://$YOURIP:8546"
       -plugin.dir="/usr/local/bin/plugins/"
       -plugin.conf="/autoracle/plugins-conf.yml"
     restart: "no"
