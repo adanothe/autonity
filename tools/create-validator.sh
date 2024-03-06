@@ -51,5 +51,5 @@ echo "Ownership proof generated: $PROOF"
 # Run aut validator register command with PROOF and send it to the blockchain, using passphrase from KEYPASSWORD
 echo "Registering validator and sending it to the blockchain..."
 export 'KEYFILEPWD'="$KEYPASSWORD"
-$AUT validator register $ENODE $ORACLE $CONSENSUS_KEY | $AUT tx sign - | $AUT tx send -
+$AUT validator register $ENODE $ORACLE $CONSENSUS_KEY $PROOF | $AUT tx sign - | $AUT tx send -
 echo "Validator registered and sent to the blockchain."
