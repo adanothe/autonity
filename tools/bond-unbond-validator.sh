@@ -8,7 +8,7 @@ source ~/autonity/.env
 
 # Retrieve ENODE and VALIDATOR_IDENTIFIER_ADDRESS
 ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*') 
-VALIDATOR_IDENTIFIER_ADDRESS=$AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*'
+VALIDATOR_IDENTIFIER_ADDRESS=$($AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*')
 
 # choose to bond or unbond
 echo "Choose to bond or unbond" 1. Bond 2. Unbond
