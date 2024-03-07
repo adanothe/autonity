@@ -96,6 +96,7 @@ log_command "Setting up .autrc configuration file"
 tee <<EOF >/dev/null $HOME/.autrc
 [aut]
 rpc_endpoint= ws://127.0.0.1:8546
+keyfile= ~/.autonity/keystore/treasury.key
 EOF
 
 # start autonity node
