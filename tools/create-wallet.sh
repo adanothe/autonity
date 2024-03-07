@@ -1,10 +1,10 @@
 #!/usr/bin/expect -f
 
 # Define the location of aut
-set AUT_BIN "/root/.local/bin/aut"
-set KEYSTORE_DIR "$env(HOME)/.autonity/keystore"
+set AUT_BIN [exec which aut]
 
 # Create the keystore folder if it does not exist
+set KEYSTORE_DIR "$env(HOME)/.autonity/keystore"
 exec mkdir -p "$KEYSTORE_DIR"
 
 # Read the value of KEYPASSWORD from the .env file
@@ -17,7 +17,7 @@ foreach line [split $env_file \n] {
 }
 
 # Check if aut exists at the expected location
-if { [file executable $AUT_BIN] } {
+if { $AUT_BIN != "" && [file executable $AUT_BIN] } {
     # Run the aut command to create a new account using oracle.key keystore
     spawn "$AUT_BIN" account new -k "$KEYSTORE_DIR/oracle.key"
     expect "Password for new account:"
@@ -49,6 +49,6 @@ if { [file executable $AUT_BIN] } {
     puts ""
     puts "Make sure you save these addresses for future use."
 } else {
-    puts "Aut not found at the expected location."
+    puts "Aut not found at the expected location or not installed."
     exit 1
 }
