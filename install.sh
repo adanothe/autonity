@@ -66,6 +66,7 @@ fi
 # Clone tools repository
 log_command "Cloning tools repository"
 git clone https://github.com/adanothe/autonity.git
+cd autonity
 
 # Export KEYPASSWORD and YOURIP to .env file
 read -p "Enter your KEYPASSWORD: " KEYPASSWORD
@@ -87,6 +88,8 @@ chmod +x $HOME/autonity/tools/*
 # Create wallet
 log_command "Creating wallet"
 $HOME/autonity/tools/create-wallet.sh
+echo "your wallet password is $KEYPASSWORD"
+sleep 10
 
 # Setups .autrc configuration file
 log_command "Setting up .autrc configuration file"
@@ -95,4 +98,11 @@ tee <<EOF >/dev/null $HOME/.autrc
 rpc_endpoint= ws://127.0.0.1:8546
 EOF
 
-echo "Installation completed"
+# start autonity node
+docker compose up -d autonity
+
+# done
+echo  "Installation completed"
+sleep 5
+echo -e "to check node logs: \e[1mdocker logs -f --tail=10 autonity\e[0m"
+echo -e "to check node sync: \e[1maut node info | jq '{eth_blockNumber, eth_syncing}'\e[0m" if false your node is synced
