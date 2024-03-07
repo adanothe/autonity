@@ -11,7 +11,7 @@ ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
 echo "ENODE retrieved: $ENODE"
 
 # Retrieve validator identifier address from enode 
-$AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*'
+VALIDATOR_IDENTIFIER_ADDRESS=$AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*'
 echo "Validator identifier address retrieved: $VALIDATOR_IDENTIFIER_ADDRESS"
 
 # get account balance from user input
