@@ -3,6 +3,7 @@ version: '3.8'
 services:
   autonity:
     image: ghcr.io/autonity/autonity:latest
+    container_name: autonity
     command: >
       --datadir /autonity-chaindata
       --piccadilly
@@ -13,7 +14,7 @@ services:
       --ws
       --ws.addr 0.0.0.0
       --ws.api aut,eth,net,txpool,web3,admin
-      --nat extip:$YOURIP
+      --nat extip:${YOURIP}
     volumes:
       - $HOME/autonity-chaindata:/autonity-chaindata
     ports:
@@ -24,34 +25,29 @@ services:
       - "6060:6060"
     stdin_open: true
     tty: true
-    container_name: autonity
-    restart: "no"
-    networks:
-      - autonity_network
     environment:
-      - YOURIP=$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2)
+      - YOURIP=${YOURIP}
 
   oracle:
     image: ghcr.io/autonity/autonity-oracle-piccadilly:latest
     container_name: oracle
+    command: >
+      -tip="1"
+      -key.file="/autoracle/oracle.key"
+      -key.password=${KEYPASSWORD}
+      -ws="ws://${YOURIP}:8546"
+      -plugin.dir="/usr/local/bin/plugins/"
+      -plugin.conf="/autoracle/plugins-conf.yml"
     volumes:
       - $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key
       - $HOME/.autonity/oracle/plugins-conf.yml:/autoracle/plugins-conf.yml
     stdin_open: true
     tty: true
-    command: >
-      -tip="1"
-      -key.file="/autoracle/oracle.key"
-      -key.password=$KEYPASSWORD
-      -ws="ws://$YOURIP:8546"
-      -plugin.dir="/usr/local/bin/plugins/"
-      -plugin.conf="/autoracle/plugins-conf.yml"
-    restart: "no"
     depends_on:
       - autonity
     environment:
-      - KEYPASSWORD=$(cat /root/autonity/.env | grep KEYPASSWORD | cut -d'=' -f2)
-      - YOURIP=$(cat /root/autonity/.env | grep YOURIP | cut -d'=' -f2)
+      - KEYPASSWORD=${KEYPASSWORD}
+      - YOURIP=${YOURIP}
 
 networks:
   autonity_network:
