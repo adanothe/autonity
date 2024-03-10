@@ -28,7 +28,7 @@ sudo apt install curl git jq expect fail2ban ufw -y
 
 ## Install Tools and Start Node
 ```bash
-curl --proto '=https' --tlsv1.2 sSfL https://raw.githubusercontent.com/adanothe/autonity/main/install.sh | sudo bash
+curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && chmod +x install.sh && bash install.sh
 ```
 During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the .env Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore`.
 
