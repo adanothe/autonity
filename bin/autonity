@@ -3,8 +3,8 @@
 # AUT path
 AUT=$(which aut)
 VALIDATORADDRESS=$(cat $HOME/.autrc | grep validator= | cut -d'=' -f2)
-KEFILE1=root/.autonity/keystore/oracle.key
-KEFILE2=root/.autonity/keystore/treasury.key
+KEFILE1=$HOME/.autonity/keystore/oracle.key
+KEFILE2=$HOME/.autonity/keystore/treasury.key
 TOOLS=$HOME/autonity/tools
 AUTONITY=$(which autonity)
 
@@ -32,7 +32,7 @@ display_help() {
     
     echo "  wallet:"
     echo "    management          - Wallet management"
-    echo "    balance             - Display wallet balance"
+    echo "    info                - Display wallet balance"
     echo "    list                - List all wallets"
     echo "    help                - Display help menu"
 
@@ -172,7 +172,7 @@ elif [[ "$1" == "wallet" ]]; then
         echo "Usage: autonity wallet <subcommand>"
         echo "Available subcommands:"
         echo "  management          - Wallet management"
-        echo "  balance             - Display wallet balance"
+        echo "  Info                - check wallet details"
         echo "  list                - List all wallets"
         echo "  help                - Display help menu"
     else
