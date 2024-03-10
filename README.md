@@ -75,6 +75,7 @@ autonity validator setup
 Choose option 1 to register as a validator.
 
 ## Setup & Start Oracle Server
+Pre-fund the oracle server account (oracle.key) with ATN, see command to send ATN to the oracle account in documentation [cheatsheet](https://github.com/adanothe/autonity/blob/main/cheatsheet.md#wallet-management).
 Edit your oracle server data plugins config file `plugins-conf.yml` to specify the name and key for each plugin you are using. Get the API key on the site below, please register and copy each API key.
 - [CurrencyFreaks](https://currencyfreaks.com)
 - [OpenExchangeRates](https://openexchangerates.org)
@@ -115,4 +116,14 @@ autonity wallet management
 ```
 Choose option 2, to Create Signature and enode for validator registration.
 
+## bond to your validator
+```bash
+autonity validator setup
+```
+choose option 2 to bond to your validator.
+
+to see more commands check cheatsheet [cheatsheet](https://github.com/adanothe/autonity/blob/main/cheatsheet.md#wallet-management), or run the command below:
+```bash
+autonity help
+```
 --- 
