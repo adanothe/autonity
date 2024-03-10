@@ -83,7 +83,7 @@ Edit your oracle server data plugins config file `plugins-conf.yml` to specify t
 ```bash
 nano $HOME/.autonity/oracle/plugins-conf.yml
 ```
-![Tempsnip](https://github.com/adanothe/autonity/blob/main/plugins/tempsnip.png)
+![Tempsnip](https://github.com/adanothe/autonity/blob/main/plugins/IMG_20240310_171734.png)
 
 ### Start Oracle Server
 ```bash
