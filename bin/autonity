@@ -12,11 +12,50 @@ display_help() {
     echo "Usage: autonity <command> <subcommand>"
     echo "Available commands:"
 
-    echo "  validator           - Validator management"
+    echo "  validator           - validator management"
     echo "  wallet              - Wallet management"
     echo "  node                - Node management"
     echo "  oracle              - Oracle server management"
     echo "  help                - Display help menu"
+
+    echo "Available subcommands:"
+    
+    echo "  validator:"
+    echo "    setup               - Validator setup"
+    echo "    info                - check your validator info"
+    echo "    list                - List all validators"
+    echo "    seat active         - check Active seat"
+    echo "    committe            - Check your validator in the seat active"
+    echo "    help                - Display help menu"
+
+    
+    echo "  wallet:"
+    echo "    management          - Wallet management"
+    echo "    balance             - Display wallet balance"
+    echo "    list                - List all wallets"
+    echo "    help                - Display help menu"
+
+    
+    echo "  node:"
+    echo "    start               - Start node"
+    echo "    stop                - Stop node"
+    echo "    restart             - Restart node"
+    echo "    logs                - check node logs"
+    echo "    epoch               - check current epoch"
+    echo "    sync                - check node sync status"
+
+    
+    echo "  oracle:"
+    echo "    start               - Start oracle  server"
+    echo "    stop                - Stop oracle server"
+    echo "    restart             - Restart oracle server"
+    echo "    logs                - check oracle server logs"
+    echo "    update              - Update oracle server"
+
+    
+    echo "  help:"
+    echo "    help                - Display help menu"
+
 
     exit 0
 }
