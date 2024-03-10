@@ -6,6 +6,7 @@ VALIDATORADDRESS=$(cat $HOME/.autrc | grep validator= | cut -d'=' -f2)
 KEFILE1=root/.autonity/keystore/oracle.key
 KEFILE2=root/.autonity/keystore/treasury.key
 TOOLS=$HOME/autonity/tools
+AUTONITY=$(which autonity)
 
 # Function to display help menu
 display_help() {
@@ -116,7 +117,7 @@ if [[ "$1" == "validator" ]]; then
         echo "  help                - Display help menu"
     else
         echo "Invalid subcommand"
-        display_help
+        $AUTONITY validator help
     fi
 elif [[ "$1" == "wallet" ]]; then
     if [[ "$2" == "management" ]]; then
@@ -181,7 +182,7 @@ elif [[ "$1" == "wallet" ]]; then
         echo "  help                - Display help menu"
     else
         echo "Invalid subcommand"
-        display_help
+        $AUTONITY wallet help
     fi
 elif [[ "$1" == "node" ]]; then
     if [[ "$2" == "start" ]]; then
@@ -215,7 +216,7 @@ elif [[ "$1" == "node" ]]; then
         echo "  help       - Display help menu"
     else
         echo "Invalid subcommand"
-        display_help
+       $AUTONITY node help
     fi
 elif [[ "$1" == "oracle" ]]; then
     if [[ "$2" == "start" ]]; then
@@ -246,7 +247,7 @@ elif [[ "$1" == "oracle" ]]; then
         echo "  help       - Display help menu"
     else
         echo "Invalid subcommand"
-        display_help
+        $AUTONITY oracle help
     fi
 elif [[ "$1" == "help" ]]; then
         display_help
