@@ -8,6 +8,16 @@ HEAD=$(which head)
 AUT=$(which aut)
 MESSAGE="validator onboarded"
 
+# Check if the autonitykeys.key files exist next to run the command to sign the message
+if [ -f "$HOME/.autonity/keystore/autonitykeys.key" ]; then
+    SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$HOME/.autonity/keystore/autonitykeys.key" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
+    ENODE=$($AUT validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+    echo "Use this signature and enode for registration onboarded validator:"
+    echo "$SIGNED_MESSAGE"
+    echo "ENODE: $ENODE"
+    exit 0
+fi
+
 # Get the autonitykeys private key
 private_key=$("$HEAD" -c 64 "$HOME/autonity-chaindata/autonity/autonitykeys")
 echo "import private key from autonitykeys file"
@@ -36,7 +46,11 @@ echo "successfully import private key to autonitykeys.key file in path $HOME/.au
 # Provide the appropriate permissions
 chmod 600 "$HOME/.autonity/keystore/autonitykeys.key"
 
+# check ENODE
+ENODE=$($AUT validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+
 # Run the command to sign the message
 SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$KEYFILE" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-echo "Use this signature for registration onboarded validator:"
+echo "Use this signature and enode for registration onboarded validator:"
 echo "$SIGNED_MESSAGE"
+echo "ENODE: $ENODE"
