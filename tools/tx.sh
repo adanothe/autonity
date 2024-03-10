@@ -6,7 +6,7 @@ ORACLE=$HOME/.autonity/keystore/oracle.key
 TREASURY=$HOME/.autonity/keystore/treasury.key
 KEYSTORE=$HOME/.autonity/keystore
 
-read -p "Enter the currency to send 1.ATN or 2.NTN: " CURRENCY
+read -p "choose currency to send 1. ATN or 2. NTN : " CURRENCY
 if [ "$CURRENCY" != "1" ] && [ "$CURRENCY" != "2" ]; then
     echo "Invalid currency"
     exit 1
@@ -22,7 +22,7 @@ fi
 
 read -p "Enter the address to send to: " ADDRESS
 read -p "Enter the value to send: " VALUE
-read -p "choose the key to use: 1.Oracle 2.Treasury 3.Other key: " KEY
+read -p "choose the key to use: 1. Oracle 2. Treasury 3. Other key: " KEY
 if [ "$KEY" != "1" ] && [ "$KEY" != "2" ] && [ "$KEY" != "3" ]; then
     echo "Invalid key"
     exit 1
