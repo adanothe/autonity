@@ -1,81 +1,56 @@
 #!/bin/bash
 
-# Function to log messages
-log_message() {
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1"
-}
+# Load password from .env file
+source ~/autonity/.env
 
-# Get the parent directory of the script
-REPO_DIR="autonity"
-PARENT_DIR="/root/$REPO_DIR"
-log_message "Parent directory set to: $PARENT_DIR"
-
-# Load environment variables from .env file in the parent directory
-ENV_FILE="$PARENT_DIR/.env"
-
-if [ -f "$ENV_FILE" ]; then
-    source "$ENV_FILE"
-    log_message "Environment variables loaded from: $ENV_FILE"
-else
-    log_message "Error: File .env not found in the parent directory."
-    exit 1
-fi
-
-# Read the value of KEYPASSWORD from the .env file
-KEYPASSWORD=$(awk -F= '/KEYPASSWORD/ {print $2}' "$ENV_FILE")
-log_message "KEYPASSWORD read from .env file"
-
-# Define the location of HEAD
+# Path to packages installed
 HEAD=$(which head)
-log_message "HEAD location: $HEAD"
-
-# Define the location of aut
 AUT=$(which aut)
-log_message "AUT location: $AUT"
-
-# Define the message to be signed
 MESSAGE="validator onboarded"
-log_message "Message to be signed: $MESSAGE"
+
+# Check if the autonitykeys.key files exist next to run the command to sign the message
+if [ -f "$HOME/.autonity/keystore/autonitykeys.key" ]; then
+    SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$HOME/.autonity/keystore/autonitykeys.key" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
+    ENODE=$($AUT validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+    echo "Use this signature and enode for registration onboarded validator:"
+    echo "$SIGNED_MESSAGE"
+    echo "ENODE: $ENODE"
+    exit 0
+fi
 
 # Get the autonitykeys private key
 private_key=$("$HEAD" -c 64 "$HOME/autonity-chaindata/autonity/autonitykeys")
-log_message "Private key obtained"
+echo "import private key from autonitykeys file"
 
 # Create the privacy file with the private key using echo
 echo "$private_key" > "$HOME/.autonity/keystore/autonitykeys.priv"
-log_message "Private key saved to file: $HOME/.autonity/keystore/autonitykeys.priv"
+echo "successfully create autonitykeys.priv file in path $HOME/.autonity/keystore/autonitykeys.priv"
 
 # Define the location of the key file
 KEYFILE="/root/.autonity/keystore/autonitykeys.key"
 
-# Run the expect command to import the private key, redirecting its output to /dev/null
+# Run the expect command to import the private key
 expect -c "
-spawn \"$AUT\" account import-private-key \"$HOME/.autonity/keystore/autonitykeys.priv\"
+spawn $AUT account import-private-key $HOME/.autonity/keystore/autonitykeys.priv 
 expect \"Password for new account:\"
-send \"$KEYPASSWORD\\r\"
+send \"$KEYPASSWORD\r\"
 expect \"Confirm account password:\"
-send \"$KEYPASSWORD\\r\"
+send \"$KEYPASSWORD\r\"
 interact
-" >/dev/null
+" > /dev/null 2>&1
 
-log_message "Private key imported"
 
-# Wait a moment for the synchronization process
-sleep 5
-log_message "Waited for synchronization"
-
-# Rename the file
 mv "$HOME/.autonity/keystore/UTC-"* "$HOME/.autonity/keystore/autonitykeys.key"
-log_message "Key file renamed"
+echo "successfully import private key to autonitykeys.key file in path $HOME/.autonity/keystore/autonitykeys.key"
 
 # Provide the appropriate permissions
 chmod 600 "$HOME/.autonity/keystore/autonitykeys.key"
-log_message "Permissions set for key file"
+
+# check ENODE
+ENODE=$($AUT validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
 
 # Run the command to sign the message
 SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$KEYFILE" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-log_message "Message signed"
-
-# Display the signed message
-echo "Use this signature for registration onboarded validator:"
+echo "Use this signature and enode for registration onboarded validator:"
 echo "$SIGNED_MESSAGE"
+echo "ENODE: $ENODE"

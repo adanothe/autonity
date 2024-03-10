@@ -1,0 +1,259 @@
+#!/bin/bash
+
+# AUT path
+AUT=$(which aut)
+VALIDATORADDRESS=$(cat $HOME/.autrc | grep validator= | cut -d'=' -f2)
+KEFILE1=root/.autonity/keystore/oracle.key
+KEFILE2=root/.autonity/keystore/treasury.key
+TOOLS=$HOME/autonity/tools
+
+# Function to display help menu
+display_help() {
+    echo "Usage: autonity <command> <subcommand>"
+    echo "Available commands:"
+
+    echo "  validator           - validator management"
+    echo "  wallet              - Wallet management"
+    echo "  node                - Node management"
+    echo "  oracle              - Oracle server management"
+    echo "  help                - Display help menu"
+
+    echo "Available subcommands:"
+    
+    echo "  validator:"
+    echo "    setup               - Validator setup"
+    echo "    info                - check your validator info"
+    echo "    list                - List all validators"
+    echo "    seat active         - check Active seat"
+    echo "    committe            - Check your validator in the seat active"
+    echo "    help                - Display help menu"
+
+    
+    echo "  wallet:"
+    echo "    management          - Wallet management"
+    echo "    balance             - Display wallet balance"
+    echo "    list                - List all wallets"
+    echo "    help                - Display help menu"
+
+    
+    echo "  node:"
+    echo "    start               - Start node"
+    echo "    stop                - Stop node"
+    echo "    restart             - Restart node"
+    echo "    logs                - check node logs"
+    echo "    epoch               - check current epoch"
+    echo "    sync                - check node sync status"
+
+    
+    echo "  oracle:"
+    echo "    start               - Start oracle  server"
+    echo "    stop                - Stop oracle server"
+    echo "    restart             - Restart oracle server"
+    echo "    logs                - check oracle server logs"
+    echo "    update              - Update oracle server"
+
+    
+    echo "  help:"
+    echo "    help                - Display help menu"
+
+
+    exit 0
+}
+
+# Check if the script path is provided as an argument
+if [[ $# -eq 0 ]]; then
+    display_help
+    exit 1
+fi
+
+# Define available commands
+if [[ "$1" == "validator" ]]; then
+    if [[ "$2" == "setup" ]]; then
+        echo "Validator Management Menu:"
+        echo "1. Create Validator"
+        echo "2. Bond/Unbond Validator"
+        echo "3. Pause/Reactivate Validator"
+
+        # Prompt user for choice
+        read -p "Enter your choice: " choice
+
+        # Execute corresponding script based on user's choice
+        case $choice in
+            1)
+                $TOOLS/create-validator.sh
+                ;;
+            2)
+                $TOOLS/bond-unbond-validator.sh
+                ;;
+            3)
+                $TOOLS/pause-reactivate-validator.sh
+                ;;
+            *)
+                echo "Invalid choice"
+                ;;
+        esac
+    elif [[ "$2" == "info" ]]; then
+        echo "Validator Info"
+        $TOOLS/validatorinfo.sh
+    elif [[ "$2" == "list" ]]; then
+        echo "Validator List"
+        $AUT validator list | awk '{print NR".",$0}'
+    elif [[ "$2" == "seat" && "$3" == "active" ]]; then
+        echo "Seat Active Validators List" 
+        $TOOLS/committe.sh
+    elif [[ "$2" == "committe" ]]; then
+        echo "Check if your validator is in the Seat Active"
+        $AUT protocol get-committee | grep $VALIDATORADDRESS && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
+    elif [[ "$2" == "help" ]]; then
+        echo "Validator Help Menu:"
+        echo "Usage: autonity validator <subcommand>"
+        echo "Available subcommands:"
+        echo "  setup               - Validator setup"
+        echo "  info                - Display validator info"
+        echo "  list                - List all validators"
+        echo "  seat active         - check Active seat"
+        echo "  committe            - Check if your validator is in the seat active"
+        echo "  help                - Display help menu"
+    else
+        echo "Invalid subcommand"
+        display_help
+    fi
+elif [[ "$1" == "wallet" ]]; then
+    if [[ "$2" == "management" ]]; then
+        echo "Wallet Management Menu:"
+        echo "1. Create Signature registation for game"
+        echo "2. Create Signature for Validator onboarded"
+        echo "3. Create transaction"
+        echo "4. Create wallet"
+
+        # Prompt user for choice
+        read -p "Enter your choice: " choice
+    
+        # Execute corresponding script based on user's choice
+        case $choice in
+            1)
+                $TOOLS/signature.sh
+                ;; 
+            2)  
+                $TOOLS/valonboarded.sh
+                ;;
+            3) 
+                $TOOLS/tx.sh
+                ;;
+            4)
+                $TOOLS/create-other-wallet.sh
+                ;;
+            *)
+                echo "Invalid choice"
+                ;;
+        esac
+    elif [[ "$2" == "balance" ]]; then
+        echo "Wallet Balance"
+        echo "please chose the wallet to check the balance"
+        if [[ -f $KEFILE1 ]]; then
+            echo "1. Oracle Wallet"
+        fi
+        if [[ -f $KEFILE2 ]]; then
+            echo "2. Treasury Wallet"
+        fi
+        read -p "Enter your choice: " choice
+        case $choice in
+            1)
+                $AUT account info -k $KEFILE1
+                ;;
+            2)
+                $AUT account info -k $KEFILE2
+                ;;
+            *)
+                echo "Invalid choice"
+                ;;
+        esac
+    elif [[ "$2" == "list" ]]; then
+        echo "Wallet List"
+        $AUT account list
+    elif [[ "$2" == "help" ]]; then
+        echo "Wallet Help Menu:"
+        echo "Usage: autonity wallet <subcommand>"
+        echo "Available subcommands:"
+        echo "  management          - Wallet management"
+        echo "  balance             - Display wallet balance"
+        echo "  list                - List all wallets"
+        echo "  help                - Display help menu"
+    else
+        echo "Invalid subcommand"
+        display_help
+    fi
+elif [[ "$1" == "node" ]]; then
+    if [[ "$2" == "start" ]]; then
+        echo "Start Node"
+        docker compose -f ~/autonity/docker-compose.yml up -d autonity
+    elif [[ "$2" == "logs" ]]; then
+        echo "Node Logs"
+        docker logs -f --tail=20 autonity
+    elif [[ "$2" == "epoch" ]]; then
+        echo "Node epoch"
+        $TOOLS/epoch.sh
+    elif [[ "$2" == "sync" ]]; then
+        echo "Node Sync"
+        $AUT node info | jq '{eth_blockNumber, eth_syncing}'
+    elif [[ "$2" == "stop" ]]; then
+        echo "Stop Node"
+        docker stop autonity
+    elif [[ "$2" == "restart" ]]; then
+        echo "Restart Node"
+        docker restart autonity
+    elif [[ "$2" == "help" ]]; then
+        echo "Node Help Menu:"
+        echo "Usage: autonity node <subcommand>"
+        echo "Available subcommands:"
+        echo "  start      - Start node"
+        echo "  stop       - Stop node"
+        echo "  restart    - Restart node"
+        echo "  logs       - Display node logs"
+        echo "  epoch      - Display epoch"
+        echo "  sync       - Display sync status"
+        echo "  help       - Display help menu"
+    else
+        echo "Invalid subcommand"
+        display_help
+    fi
+elif [[ "$1" == "oracle" ]]; then
+    if [[ "$2" == "start" ]]; then
+        echo "Start Oracle"
+        docker compose -f ~/autonity/docker-compose.yml up -d oracle
+    elif [[ "$2" == "logs" ]]; then
+        echo "Oracle Logs"
+        docker logs -f --tail=20 oracle
+    elif [[ "$2" == "stop" ]]; then
+        echo "Stop Oracle"
+        docker stop oracle
+    elif [[ "$2" == "restart" ]]; then
+        echo "Restart Oracle"
+        docker restart oracle
+    elif [[ "$2" == "update" ]]; then
+        echo "Oracle Update"
+        docker compose -f $HOME/autonity/docker-compose.yml pull oracle
+        docker compose -f $HOME/autonity/docker-compose.yml up -d oracle
+    elif [[ "$2" == "help" ]]; then
+        echo "Oracle Help Menu:"
+        echo "Usage: autonity oracle <subcommand>"
+        echo "Available subcommands:"
+        echo "  start      - Start oracle"
+        echo "  stop       - Stop oracle"
+        echo "  restart    - Restart oracle"
+        echo "  logs       - check oracle logs"
+        echo "  update     - Update oracle"
+        echo "  help       - Display help menu"
+    else
+        echo "Invalid subcommand"
+        display_help
+    fi
+elif [[ "$1" == "help" ]]; then
+        display_help
+    else
+        echo "Invalid command"
+        display_help
+    fi
+
+    exit 0
+fi
