@@ -1,31 +1,24 @@
-### Setup Incentivized Testnet Piccadilly Circus Games Competition (PCGC) 
-During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the .env Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore`.
+# Setup Incentivized Testnet Piccadilly Circus Games Competition (PCGC) 
 
-There are 2 wallets that were created:
-- `treasury.key`: We will use this wallet to register for the game and manage the validator.
-- `oracle.key`: This will be used as a cryptographic identifier for the Oracle server and will be used to sign price report transactions sent to the Oracle Contract on-chain.
+## table of contents
+- [Server Prerequisites](#Server-Prerequisites)
+- [Install Tools and Start Node](#Install-Tools-and-Start-Node)
+  - [Check Node Logs](#Check-Node-Logs)
+  - [Check Node Sync](#Check-Node-Sync)
+  - [Restart Node](#restart-Node)
+  - [Stop Node](#stop-Node)
+  - [Update Node](#update-Node)
+- [Register for Piccadilly Circus Games Competition](#Register-for-Piccadilly-Circus-Games-Competition)
+- [Register Validator](#Register-Validator)
+- [setup & Start Oracle Server](#Setup-&-Start-Oracle-Server)
+  - [Edit Oracle Server Data Plugins Config File](#Edit-Oracle-Server-Data-Plugins-Config-File)
+  - [Start Oracle Server](#Start-Oracle-Server)
+  - [Check Oracle Server Logs](#check-Oracle-Server-logs)
+  - [Stop Oracle Server](#stop-Oracle-Server)
+  - [Restart Oracle Server](#restart-Oracle-Server)
+  - [Update Oracle Server](#update-Oracle-Server)
+- [Register Validator to PCGC](#Register-Validator-to-PCGC)
 
-There is also an `autonitykeys` file:
-- The private/public key pair of the validator node.
-    - The private key is used:
-        - By a node for negotiating an authenticated and encrypted connection between other network nodes at the devp2p layer in the RLPx Transport Protocol.
-        - To generate the proof of enode ownership required for validator registration. The proof is generated using the `genEnodeProof` command-line option of the Autonity Go Client.
-    - The public key is used:
-        - As the identifier or 'node ID' of the node (in RLPx and node discovery protocols).
-        - As the PUBKEY component of the enode URL as a hex string.
-        - To verify the signature of consensus level network messages.
-        - To derive an Ethereum format account that is then used to identify the validator node. See validator identifier.
-
-# table of contents
-1. [Server Prerequisites](#server-prerequisites)
-2. [Install Tools and Start Node](#install-tools-and-start-node)
-3. [Check Node Logs](#check-node-logs)
-4. [Check Node Sync](#check-node-sync)
-5. [Register for Piccadilly Circus Games Competition](#register-for-piccadilly-circus-games-competition)
-6. [Register Validator](#register-validator)
-7. [Setup Oracle Server](#setup-oracle-server)
-8. [Start Oracle Server](#start-oracle-server)
-9. [Register Validator to PCGC](#register-validator-to-pcgc)
 
 ## Server Prerequisites
 ```bash
@@ -37,15 +30,32 @@ sudo apt install curl git jq expect fail2ban ufw -y
 ```bash
 curl --proto '=https' --tlsv1.2 sSfL https://raw.githubusercontent.com/adanothe/autonity/main/install.sh | sudo bash
 ```
+During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the .env Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore`.
 
-# Check Node Logs
+There are 2 wallets that were created:
+- `treasury.key`: We will use this wallet to register for the game and manage the validator.
+- `oracle.key`: This will be used as a cryptographic identifier for the Oracle server and will be used to sign price report transactions sent to the Oracle Contract on-chain.
+- `autonitykeys`: 
+
+### Check Node Logs
 ```bash
 autonity node logs
 ```
-
-# Check Node Sync
+### Check Node Sync
 ```bash
 autonity node sync
+```
+### restart Node
+```bash
+autonity node restart
+```
+### stop Node
+```bash
+autonity node stop
+```
+### update Node
+```bash
+autonity node update
 ```
 
 ## Register for Piccadilly Circus Games Competition
@@ -64,7 +74,7 @@ autonity validator setup
 ```
 Choose option 1 to register as a validator.
 
-# Setup Oracle Server
+## Setup & Start Oracle Server
 Edit your oracle server data plugins config file `plugins-conf.yml` to specify the name and key for each plugin you are using. Get the API key on the site below, please register and copy each API key.
 - [CurrencyFreaks](https://currencyfreaks.com)
 - [OpenExchangeRates](https://openexchangerates.org)
@@ -75,12 +85,28 @@ nano $HOME/.autonity/oracle/plugins-conf.yml
 ```
 ![Tempsnip](https://github.com/adanothe/autonity/blob/main/plugins/tempsnip.png)
 
-# Start Oracle Server
+### Start Oracle Server
 ```bash
 autonity oracle start
 ```
+### check Oracle Server logs
+```bash
+autonity oracle logs
+```
+### stop Oracle Server
+```bash
+autonity oracle stop
+```
+### restart Oracle Server
+```bash
+autonity oracle restart
+```
+### update Oracle Server
+```bash
+autonity oracle update
+```
 
-# Register Validator to PCGC
+## Register Validator to PCGC
 Registration Link: [Register Validator](https://game.autonity.org/awards/register-validator.html)
 
 Run this command to get signature and enode:
