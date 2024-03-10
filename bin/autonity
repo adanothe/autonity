@@ -59,7 +59,7 @@ if [[ "$1" == "validator" ]]; then
     elif [[ "$2" == "list" ]]; then
         echo "Validator List"
         $AUT validator list | awk '{print NR".",$0}'
-    elif [[ "$2" == "seat active" ]]; then
+    elif [[ "$2" == "seat" && "$3" == "active" ]]; then
         echo "Seat Active Validators List" 
         $TOOLS/committe.sh
     elif [[ "$2" == "committe" ]]; then
