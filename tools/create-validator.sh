@@ -53,4 +53,4 @@ echo "your validator address is: $VALIDATOR_IDENTIFIER_ADDRESS"
 
 # save validator address to .autrc file
 echo "validator= $VALIDATOR_IDENTIFIER_ADDRESS" >> ~/.autrc
-echo "to check validator info, run: aut validator info"
+echo "to check detail validator, run: autonity validator info"
