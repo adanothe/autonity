@@ -7,8 +7,10 @@ $AUT validator info | jq -r '
   "Node address       : \(.node_address)",
   "Oracle address     : \(.oracle_address)",
   "Enode              : \(.enode)",
-  "Bonded stake       : \(.bonded_stake / 1e18)",
-  "Self bonded stake  : \(.self_bonded_stake / 1e18)",
+  "Consensus key      : \(.consensus_key)",
+  "Bonded stake       : \(.bonded_stake / 1e18) NTN",
+  "Self bonded stake  : \(.self_bonded_stake / 1e18) NTN",
+  "Commission rate    : \(.commission_rate / 10000 * 100)%",
   "Total slashed      : \(.total_slashed)",
   "Jail release block : \(.jail_release_block)",
   "Validator status   : \(.state | if . == 0 then "active" elif . == 1 then "paused" elif . == 2 then "jailed" else "unknown" end)"

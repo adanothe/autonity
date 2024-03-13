@@ -72,12 +72,12 @@ if [[ "$1" == "validator" ]]; then
     if [[ "$2" == "setup" ]]; then
         echo "Validator Management Menu:"
         echo "1. Create Validator"
-        echo "2. Bond/Unbond Validator"
-        echo "3. Pause/Reactivate Validator"
+        echo "2. Bond & Unbond Validator"
+        echo "3. Pause & Reactivate Validator"
+        echo "4. change commission rate" 
 
         # Prompt user for choice
-        read -p "Enter your choice: " choice
-
+        read -p "Please enter your choice: " choice
         # Execute corresponding script based on user's choice
         case $choice in
             1)
@@ -88,6 +88,9 @@ if [[ "$1" == "validator" ]]; then
                 ;;
             3)
                 $TOOLS/pause-reactivate-validator.sh
+                ;;
+            4) 
+                $TOOLS/change-validator-commission.sh
                 ;;
             *)
                 echo "Invalid choice"
@@ -126,6 +129,7 @@ elif [[ "$1" == "wallet" ]]; then
         echo "2. Create Signature for Validator onboarded"
         echo "3. Create transaction"
         echo "4. Create wallet"
+        echo "5. Create backup wallet"
 
         # Prompt user for choice
         read -p "Enter your choice: " choice
@@ -144,21 +148,24 @@ elif [[ "$1" == "wallet" ]]; then
             4)
                 $TOOLS/create-other-wallet.sh
                 ;;
+            5) 
+                $TOOLS/backup-wallet.sh
+                ;;
             *)
                 echo "Invalid choice"
                 ;;
         esac
     elif [[ "$2" == "info" ]]; then
         echo "Wallet Info"
-        echo "Oracle Wallet"
-        $AUT account info -k $KEFILE1 | jq -r '
+        echo "treasury Wallet"
+        $AUT account info -k $KEFILE2 | jq -r '
             .[0] | 
             "Address      : \(.account)",
             "Balance      : \(.balance)",
             "NTN Balance  : \(.ntn_balance)"
         '       
-        echo "Treasury Wallet"
-        $AUT account info -k $KEFILE2 | jq -r '
+        echo "oracle Wallet"
+        $AUT account info -k $KEFILE1 | jq -r '
             .[0] | 
             "Address      : \(.account)",
             "Balance      : \(.balance)",
