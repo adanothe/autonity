@@ -12,52 +12,44 @@ AUTONITY=$(which autonity)
 display_help() {
     echo "Usage: autonity <command> <subcommand>"
     echo "Available commands:"
-
-    echo "  validator           - validator management"
+    echo "  validator           - Validator management"
     echo "  wallet              - Wallet management"
     echo "  node                - Node management"
     echo "  oracle              - Oracle server management"
     echo "  help                - Display help menu"
-
+    echo
     echo "Available subcommands:"
-    
     echo "  validator:"
     echo "    setup               - Validator setup"
-    echo "    info                - check your validator info"
+    echo "    info                - Display validator info"
     echo "    list                - List all validators"
-    echo "    seat active         - check Active seat"
-    echo "    committe            - Check your validator in the seat active"
+    echo "    seat active         - Check active seats"
+    echo "    committe            - Check if your validator is in the active seats"
     echo "    help                - Display help menu"
-
-    
+    echo
     echo "  wallet:"
     echo "    management          - Wallet management"
     echo "    info                - Display wallet balance"
     echo "    list                - List all wallets"
     echo "    help                - Display help menu"
-
-    
+    echo
     echo "  node:"
     echo "    start               - Start node"
     echo "    stop                - Stop node"
     echo "    restart             - Restart node"
-    echo "    logs                - check node logs"
-    echo "    epoch               - check current epoch"
-    echo "    sync                - check node sync status"
-
-    
+    echo "    logs                - Display node logs"
+    echo "    epoch               - Display current epoch"
+    echo "    sync                - Display node sync status"
+    echo
     echo "  oracle:"
-    echo "    start               - Start oracle  server"
+    echo "    start               - Start oracle server"
     echo "    stop                - Stop oracle server"
     echo "    restart             - Restart oracle server"
-    echo "    logs                - check oracle server logs"
+    echo "    logs                - Display oracle server logs"
     echo "    update              - Update oracle server"
-
-    
+    echo
     echo "  help:"
     echo "    help                - Display help menu"
-
-
     exit 0
 }
 
@@ -67,35 +59,43 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-# Define available commands
+# Define available commands and subcommands
 if [[ "$1" == "validator" ]]; then
     if [[ "$2" == "setup" ]]; then
-        echo "Validator Management Menu:"
-        echo "1. Create Validator"
-        echo "2. Bond & Unbond Validator"
-        echo "3. Pause & Reactivate Validator"
-        echo "4. change commission rate" 
+        while true; do
+            clear
+            echo "===== Validator Management Menu ====="
+            echo "1. Create Validator"
+            echo "2. Bond & Unbond Validator"
+            echo "3. Pause & Reactivate Validator"
+            echo "4. Change Commission Rate"
+            echo "5. Exit"
+            echo "======================================"
+            read -p "Enter your choice (1-5): " choice
 
-        # Prompt user for choice
-        read -p "Please enter your choice: " choice
-        # Execute corresponding script based on user's choice
-        case $choice in
-            1)
-                $TOOLS/create-validator.sh
-                ;;
-            2)
-                $TOOLS/bond-unbond-validator.sh
-                ;;
-            3)
-                $TOOLS/pause-reactivate-validator.sh
-                ;;
-            4) 
-                $TOOLS/change-validator-commission.sh
-                ;;
-            *)
-                echo "Invalid choice"
-                ;;
-        esac
+            case $choice in
+                1)
+                    $TOOLS/create-validator.sh
+                    ;;
+                2)
+                    $TOOLS/bond-unbond-validator.sh
+                    ;;
+                3)
+                    $TOOLS/pause-reactivate-validator.sh
+                    ;;
+                4) 
+                    $TOOLS/change-validator-commission.sh
+                    ;;
+                5)
+                    echo "Exiting..."
+                    exit 0
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter a number between 1 and 5."
+                    ;;
+            esac
+            read -p "Press Enter to continue..."
+        done
     elif [[ "$2" == "info" ]]; then
         echo "Validator Info"
         $TOOLS/validatorinfo.sh
@@ -115,8 +115,8 @@ if [[ "$1" == "validator" ]]; then
         echo "  setup               - Validator setup"
         echo "  info                - Display validator info"
         echo "  list                - List all validators"
-        echo "  seat active         - check Active seat"
-        echo "  committe            - Check if your validator is in the seat active"
+        echo "  seat active         - Check active seats"
+        echo "  committe            - Check if your validator is in the active seats"
         echo "  help                - Display help menu"
     else
         echo "Invalid subcommand"
@@ -124,47 +124,54 @@ if [[ "$1" == "validator" ]]; then
     fi
 elif [[ "$1" == "wallet" ]]; then
     if [[ "$2" == "management" ]]; then
-        echo "Wallet Management Menu:"
-        echo "1. Create Signature registation for game"
-        echo "2. Create Signature for Validator onboarded"
-        echo "3. Create transaction"
-        echo "4. Create wallet"
-        echo "5. Create backup wallet"
-
-        # Prompt user for choice
-        read -p "Enter your choice: " choice
-    
-        # Execute corresponding script based on user's choice
-        case $choice in
-            1)
-                $TOOLS/signature.sh
-                ;; 
-            2)  
-                $TOOLS/valonboarded.sh
-                ;;
-            3) 
-                $TOOLS/tx.sh
-                ;;
-            4)
-                $TOOLS/create-other-wallet.sh
-                ;;
-            5) 
-                $TOOLS/backup-wallet.sh
-                ;;
-            *)
-                echo "Invalid choice"
-                ;;
-        esac
+        while true; do
+            clear
+            echo "===== Wallet Management Menu ====="
+            echo "1. Create Signature registration for game"
+            echo "2. Create Signature for Validator onboarded"
+            echo "3. Create transaction"
+            echo "4. Create wallet"
+            echo "5. Create backup wallet"
+            echo "6. Exit"
+            echo "====================================="
+            read -p "Enter your choice (1-6): " choice
+        
+            case $choice in
+                1)
+                    $TOOLS/signature.sh
+                    ;; 
+                2)  
+                    $TOOLS/valonboarded.sh
+                    ;;
+                3) 
+                    $TOOLS/tx.sh
+                    ;;
+                4)
+                    $TOOLS/create-other-wallet.sh
+                    ;;
+                5) 
+                    $TOOLS/backup-wallet.sh
+                    ;;
+                6)
+                    echo "Exiting..."
+                    exit 0
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter a number between 1 and 6."
+                    ;;
+            esac
+            read -p "Press Enter to continue..."
+        done
     elif [[ "$2" == "info" ]]; then
         echo "Wallet Info"
-        echo "treasury Wallet"
+        echo "Treasury Wallet"
         $AUT account info -k $KEFILE2 | jq -r '
             .[0] | 
             "Address      : \(.account)",
             "Balance      : \(.balance)",
             "NTN Balance  : \(.ntn_balance)"
         '       
-        echo "oracle Wallet"
+        echo "Oracle Wallet"
         $AUT account info -k $KEFILE1 | jq -r '
             .[0] | 
             "Address      : \(.account)",
@@ -179,7 +186,7 @@ elif [[ "$1" == "wallet" ]]; then
         echo "Usage: autonity wallet <subcommand>"
         echo "Available subcommands:"
         echo "  management          - Wallet management"
-        echo "  Info                - check wallet details"
+        echo "  Info                - Check wallet details"
         echo "  list                - List all wallets"
         echo "  help                - Display help menu"
     else
@@ -194,7 +201,7 @@ elif [[ "$1" == "node" ]]; then
         echo "Node Logs"
         docker logs -f --tail=20 autonity
     elif [[ "$2" == "epoch" ]]; then
-        echo "Node epoch"
+        echo "Node Epoch"
         $TOOLS/epoch.sh
     elif [[ "$2" == "sync" ]]; then
         echo "Node Sync"
@@ -218,7 +225,7 @@ elif [[ "$1" == "node" ]]; then
         echo "  help       - Display help menu"
     else
         echo "Invalid subcommand"
-       $AUTONITY node help
+        $AUTONITY node help
     fi
 elif [[ "$1" == "oracle" ]]; then
     if [[ "$2" == "start" ]]; then
@@ -244,7 +251,7 @@ elif [[ "$1" == "oracle" ]]; then
         echo "  start      - Start oracle"
         echo "  stop       - Stop oracle"
         echo "  restart    - Restart oracle"
-        echo "  logs       - check oracle logs"
+        echo "  logs       - Check oracle logs"
         echo "  update     - Update oracle"
         echo "  help       - Display help menu"
     else
@@ -252,11 +259,10 @@ elif [[ "$1" == "oracle" ]]; then
         $AUTONITY oracle help
     fi
 elif [[ "$1" == "help" ]]; then
-        display_help
-    else
-        echo "Invalid command"
-        display_help
-    fi
-
-    exit 0
+    display_help
+else
+    echo "Invalid command"
+    display_help
 fi
+
+exit 0
