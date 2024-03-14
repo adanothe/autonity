@@ -78,6 +78,7 @@ echo "plugins-conf.yml moved successfully."
 # Change execution permission for scripts inside autonity/tools
 echo "Changing execution permission for scripts..."
 chmod +x $HOME/autonity/tools/* >/dev/null 2>&1
+chmod +x $HOME/autonity/tools/cax/* >/dev/null 2>&1
 echo "Execution permission changed successfully."
 
 # Create wallet
