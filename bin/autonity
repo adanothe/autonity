@@ -7,6 +7,7 @@ KEFILE1=$HOME/.autonity/keystore/oracle.key
 KEFILE2=$HOME/.autonity/keystore/treasury.key
 TOOLS=$HOME/autonity/tools
 AUTONITY=$(which autonity)
+CAX=$HOME/autonity/tools/cax
 
 # Function to display help menu
 display_help() {
@@ -49,6 +50,10 @@ display_help() {
     echo "    update              - Update oracle server"
     echo
     echo "  help:"
+    echo "    help                - Display help menu"
+    echo
+    echo "  cax:"
+    echo "    menu                - CAX Management Menu"
     echo "    help                - Display help menu"
     exit 0
 }
@@ -257,12 +262,62 @@ elif [[ "$1" == "oracle" ]]; then
     else
         echo "Invalid subcommand"
         $AUTONITY oracle help
+        fi
+    elif [[ "$1" == "cax" ]]; then
+    if [[ "$2" == "menu" ]]; then
+        while true; do
+            clear
+            echo "===== CAX Management Menu ====="
+            echo "1. Create Api Key"
+            echo "2. Check Balance"
+            echo "3. Place Order"
+            echo "4. Cancel Order"
+            echo "5. Withdraw"
+            echo "6. Exit"
+            echo "====================================="
+            read -p "Enter your choice (1-6): " choice
+        
+            case $choice in
+                1)
+                    $CAX/generate-api.sh
+                    ;; 
+                2)  
+                    $CAX/check-balance.sh
+                    ;;
+                3) 
+                   $CAX/order.sh
+                    ;;
+                4)
+                    $CAX/cancel-order.sh
+                    ;;
+                5) 
+                    $CAX/withdraw.sh
+                    ;;
+                6)
+                    echo "Exiting..."
+                    exit 0
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter a number between 1 and 6."
+                    ;;
+            esac
+            read -p "Press Enter to continue..."
+        done
+    elif [[ "$2" == "help" ]]; then
+        echo "CAX Help Menu:"
+        echo "Usage: autonity cax <subcommand>"
+        echo "Available subcommands:"
+        echo "  menu      - CAX Management Menu"
+        echo "  help       - Display help menu"
+    else
+        echo "Invalid subcommand"
+        $AUTONITY cax help
     fi
-elif [[ "$1" == "help" ]]; then
-    display_help
-else
-    echo "Invalid command"
-    display_help
-fi
+    elif [[ "$1" == "help" ]]; then
+     display_help
+       else
+     echo "Invalid command"
+       display_help
+        fi
 
 exit 0
