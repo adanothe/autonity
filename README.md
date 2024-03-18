@@ -1,4 +1,4 @@
-# Setup Piccadilly Testnet & join Piccadilly Circus Games Competition (PCGC) 
+# Setup Autonity Piccadilly Testnet & Join Autonity Piccadilly Circus Games Competition (PCGC) 
 
 
 ## Node Installation
