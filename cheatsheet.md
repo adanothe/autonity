@@ -1,35 +1,13 @@
-# Cli Cheatsheet
+# Autonity CLI Cheatsheet
 
 ## Table of Contents
 
 - [Validator Management](#validator-management)
-  - [setup](#setup)
-  - [info](#info)
-  - [list](#list)
-  - [seat active](#seat-active)
-  - [committe](#committe)
-  - [help](#help)
 - [Wallet Management](#wallet-management)
-  - [management](#management)
-  - [info](#info-1)
-  - [list](#list-1)
-  - [help](#help-1)
 - [Node Management](#node-management)
-  - [start](#start)
-  - [logs](#logs)
-  - [epoch](#epoch)
-  - [sync](#sync)
-  - [stop](#stop)
-  - [restart](#restart)
-  - [help](#help-2)
 - [Oracle Management](#oracle-management)
-  - [start](#start-1)
-  - [logs](#logs-1)
-  - [stop](#stop-1)
-  - [restart](#restart-1)
-  - [update](#update)
-  - [help](#help-3)
-- [Help](#help-4)
+- [CAX Management](#cax-management)
+- [Help](#help)
 
 ## Validator Management
 
@@ -39,8 +17,9 @@ Command: `autonity validator setup`
 
 Description: This command allows you to set up a validator. It presents a menu with the following options:
 1. Create Validator
-2. Bond/Unbond Validator
-3. Pause/Reactivate Validator
+2. Bond & Unbond Validator
+3. Pause & Reactivate Validator
+4. Change Commission Rate
 
 You will be prompted to enter your choice, and the corresponding script will be executed based on your selection.
 
@@ -85,6 +64,7 @@ Description: This command provides a menu for managing wallets. It presents the 
 2. Create Signature for Validator onboarded
 3. Create transaction
 4. Create wallet
+5. Create backup wallet
 
 You will be prompted to enter your choice, and the corresponding script will be executed based on your selection.
 
@@ -144,6 +124,12 @@ Command: `autonity node restart`
 
 Description: This command restarts the Autonity node.
 
+### update
+
+Command: `autonity node update`
+
+Description: This command updates the Autonity node.
+
 ### help
 
 Command: `autonity node help`
@@ -187,6 +173,20 @@ Description: This command updates the Oracle server.
 Command: `autonity oracle help`
 
 Description: This command displays the help menu for the oracle commands.
+
+## CAX Management
+
+### menu
+
+Command: `autonity cax menu`
+
+Description: This command displays the CAX Management Menu.
+
+### help
+
+Command: `autonity cax help`
+
+Description: This command displays the help menu for the CAX commands.
 
 ## Help
 
