@@ -40,6 +40,7 @@ display_help() {
     echo "    restart             - Restart node"
     echo "    logs                - Display node logs"
     echo "    epoch               - Display current epoch"
+    echo "    update              - Update node"
     echo "    sync                - Display node sync status"
     echo
     echo "  oracle:"
@@ -211,6 +212,10 @@ elif [[ "$1" == "node" ]]; then
     elif [[ "$2" == "sync" ]]; then
         echo "Node Sync"
         $AUT node info | jq '{eth_blockNumber, eth_syncing}'
+    elif [[ "$2" == "update" ]]; then
+        echo "Node Update"
+        docker compose -f $HOME/autonity/docker-compose.yml pull autonity
+        docker compose -f $HOME/autonity/docker-compose.yml up -d autonity
     elif [[ "$2" == "stop" ]]; then
         echo "Stop Node"
         docker stop autonity
@@ -227,6 +232,7 @@ elif [[ "$1" == "node" ]]; then
         echo "  logs       - Display node logs"
         echo "  epoch      - Display epoch"
         echo "  sync       - Display sync status"
+        echo "  update     - Update node"
         echo "  help       - Display help menu"
     else
         echo "Invalid subcommand"
