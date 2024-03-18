@@ -7,7 +7,7 @@
 - [Node Management](#node-management)
 - [Oracle Management](#oracle-management)
 - [CAX Management](#cax-management)
-- [Help](#help)
+- [Help](#help-5)
 
 ## Validator Management
 
