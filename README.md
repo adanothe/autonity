@@ -111,7 +111,9 @@ autonity wallet management
 Choose option 2 to create signature and get enode for validator registration.
 
 ### Autonity Validator Management
-The `autonity validator management` command provides a set of subcommands to manage validators within the Autonity network. Below is the list of available subcommands:
+The `autonity validator management` command provides a set of subcommands to manage validators within the Autonity network.
+usage: `autonity validator <subcommands>`
+Below is the list of available subcommands:
 - `setup`: Sets up a validator. You can choose from the following options:
   1. Create Validator
   2. Bond & Unbond Validator
