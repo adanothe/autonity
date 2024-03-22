@@ -132,3 +132,10 @@ To see more commands, check [cheatsheet](cheatsheet.md), or run the following co
 ```bash
 autonity help
 ```
+
+## Update script 
+```sh
+curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/update.sh && \
+chmod +x update.sh && \
+bash update.sh
+```
