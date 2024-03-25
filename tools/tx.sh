@@ -22,12 +22,15 @@ read -p "Enter the value to send: " VALUE
 
 if [ "$CURRENCY" == "ATN" ]; then
     export 'KEYFILEPWD'="$KEYPASSWORD"
-    $AUT tx make --to $ADDRESS --value $VALUE | $AUT tx sign - | $AUT tx send -
+    TX_HASH=$($AUT tx make --to $ADDRESS --value $VALUE | $AUT tx sign - | $AUT tx send -)
 fi
 
 if [ "$CURRENCY" == "NTN" ]; then
     export 'KEYFILEPWD'="$KEYPASSWORD"
-    $AUT tx make --to $ADDRESS --value $VALUE --ntn | $AUT tx sign - | $AUT tx send -
+    TX_HASH=$($AUT tx make --to $ADDRESS --value $VALUE --ntn | $AUT tx sign - | $AUT tx send -)
+    echo "Transaction hash: https://piccadilly.autonity.org/tx/$TX_HASH"
 fi
 
 exit 0
+
+}
