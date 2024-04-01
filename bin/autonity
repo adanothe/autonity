@@ -12,50 +12,15 @@ CAX=$HOME/autonity/tools/cax
 # Function to display help menu
 display_help() {
     echo "Usage: autonity <command> <subcommand>"
+    echo
     echo "Available commands:"
-    echo "  validator           - Validator management"
-    echo "  wallet              - Wallet management"
-    echo "  node                - Node management"
-    echo "  oracle              - Oracle server management"
+    echo "  validator           - Command for interacting with Validator management"
+    echo "  wallet              - Command for interacting with Wallet management"
+    echo "  node                - Command for interacting with Node management"
+    echo "  oracle              - Command for interacting with Oracle server management"
+    echo "  cax                 - Command for interacting with CAX"
     echo "  help                - Display help menu"
     echo
-    echo "Available subcommands:"
-    echo "  validator:"
-    echo "    setup               - Validator setup"
-    echo "    info                - Display validator info"
-    echo "    list                - List all validators"
-    echo "    seat active         - Check active seats"
-    echo "    committe            - Check if your validator is in the active seats"
-    echo "    help                - Display help menu"
-    echo
-    echo "  wallet:"
-    echo "    management          - Wallet management"
-    echo "    info                - Display wallet balance"
-    echo "    list                - List all wallets"
-    echo "    help                - Display help menu"
-    echo
-    echo "  node:"
-    echo "    start               - Start node"
-    echo "    stop                - Stop node"
-    echo "    restart             - Restart node"
-    echo "    logs                - Display node logs"
-    echo "    epoch               - Display current epoch"
-    echo "    update              - Update node"
-    echo "    sync                - Display node sync status"
-    echo
-    echo "  oracle:"
-    echo "    start               - Start oracle server"
-    echo "    stop                - Stop oracle server"
-    echo "    restart             - Restart oracle server"
-    echo "    logs                - Display oracle server logs"
-    echo "    update              - Update oracle server"
-    echo
-    echo "  help:"
-    echo "    help                - Display help menu"
-    echo
-    echo "  cax:"
-    echo "    menu                - CAX Management Menu"
-    echo "    help                - Display help menu"
     exit 0
 }
 
@@ -115,8 +80,8 @@ if [[ "$1" == "validator" ]]; then
         echo "Check if your validator is in the Seat Active"
         $AUT protocol get-committee | grep $VALIDATORADDRESS && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
     elif [[ "$2" == "help" ]]; then
-        echo "Validator Help Menu:"
         echo "Usage: autonity validator <subcommand>"
+        echo
         echo "Available subcommands:"
         echo "  setup               - Validator setup"
         echo "  info                - Display validator info"
@@ -125,7 +90,6 @@ if [[ "$1" == "validator" ]]; then
         echo "  committe            - Check if your validator is in the active seats"
         echo "  help                - Display help menu"
     else
-        echo "Invalid subcommand"
         $AUTONITY validator help
     fi
 elif [[ "$1" == "wallet" ]]; then
@@ -188,15 +152,14 @@ elif [[ "$1" == "wallet" ]]; then
         echo "Wallet List"
         $AUT account list
     elif [[ "$2" == "help" ]]; then
-        echo "Wallet Help Menu:"
         echo "Usage: autonity wallet <subcommand>"
+        echo
         echo "Available subcommands:"
         echo "  management          - Wallet management"
         echo "  Info                - Check wallet details"
         echo "  list                - List all wallets"
         echo "  help                - Display help menu"
     else
-        echo "Invalid subcommand"
         $AUTONITY wallet help
     fi
 elif [[ "$1" == "node" ]]; then
@@ -223,8 +186,8 @@ elif [[ "$1" == "node" ]]; then
         echo "Restart Node"
         docker restart autonity
     elif [[ "$2" == "help" ]]; then
-        echo "Node Help Menu:"
         echo "Usage: autonity node <subcommand>"
+        echo
         echo "Available subcommands:"
         echo "  start      - Start node"
         echo "  stop       - Stop node"
@@ -235,7 +198,6 @@ elif [[ "$1" == "node" ]]; then
         echo "  update     - Update node"
         echo "  help       - Display help menu"
     else
-        echo "Invalid subcommand"
         $AUTONITY node help
     fi
 elif [[ "$1" == "oracle" ]]; then
@@ -256,8 +218,8 @@ elif [[ "$1" == "oracle" ]]; then
         docker compose -f $HOME/autonity/docker-compose.yml pull oracle
         docker compose -f $HOME/autonity/docker-compose.yml up -d oracle
     elif [[ "$2" == "help" ]]; then
-        echo "Oracle Help Menu:"
         echo "Usage: autonity oracle <subcommand>"
+        echo
         echo "Available subcommands:"
         echo "  start      - Start oracle"
         echo "  stop       - Stop oracle"
@@ -266,7 +228,6 @@ elif [[ "$1" == "oracle" ]]; then
         echo "  update     - Update oracle"
         echo "  help       - Display help menu"
     else
-        echo "Invalid subcommand"
         $AUTONITY oracle help
         fi
     elif [[ "$1" == "cax" ]]; then
@@ -310,13 +271,12 @@ elif [[ "$1" == "oracle" ]]; then
             read -p "Press Enter to continue..."
         done
     elif [[ "$2" == "help" ]]; then
-        echo "CAX Help Menu:"
         echo "Usage: autonity cax <subcommand>"
+        echo
         echo "Available subcommands:"
         echo "  menu      - CAX Management Menu"
         echo "  help       - Display help menu"
     else
-        echo "Invalid subcommand"
         $AUTONITY cax help
     fi
     elif [[ "$1" == "help" ]]; then
