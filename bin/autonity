@@ -134,20 +134,8 @@ elif [[ "$1" == "wallet" ]]; then
         done
     elif [[ "$2" == "info" ]]; then
         echo "Wallet Info"
-        echo "Treasury Wallet"
-        $AUT account info -k $KEFILE2 | jq -r '
-            .[0] | 
-            "Address      : \(.account)",
-            "Balance      : \(.balance)",
-            "NTN Balance  : \(.ntn_balance)"
-        '       
-        echo "Oracle Wallet"
-        $AUT account info -k $KEFILE1 | jq -r '
-            .[0] | 
-            "Address      : \(.account)",
-            "Balance      : \(.balance)",
-            "NTN Balance  : \(.ntn_balance)"    
-        '
+        echo "---------------------------------------------------------"
+        $TOOLS/wallet-info.sh
     elif [[ "$2" == "list" ]]; then
         echo "Wallet List"
         $AUT account list
