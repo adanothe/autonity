@@ -1,277 +1,152 @@
 #!/bin/bash
 
-# AUT path
 AUT=$(which aut)
-VALIDATORADDRESS=$(cat $HOME/.autrc | grep validator= | cut -d'=' -f2)
-KEFILE1=$HOME/.autonity/keystore/oracle.key
-KEFILE2=$HOME/.autonity/keystore/treasury.key
-TOOLS=$HOME/autonity/tools
+VALIDATORADDRESS=$(grep 'validator=' $HOME/.autrc | cut -d'=' -f2)
+KEFILE1="$HOME/.autonity/keystore/oracle.key"
+KEFILE2="$HOME/.autonity/keystore/treasury.key"
+TOOLS="$HOME/autonity/tools"
 AUTONITY=$(which autonity)
-CAX=$HOME/autonity/tools/cax
+CAX="$TOOLS/cax"
 
-# Function to display help menu
+
 display_help() {
-    echo "Usage: autonity <command> <subcommand>"
-    echo
-    echo "Available commands:"
-    echo "  validator           - Command for interacting with Validator management"
-    echo "  wallet              - Command for interacting with Wallet management"
-    echo "  node                - Command for interacting with Node management"
-    echo "  oracle              - Command for interacting with Oracle server management"
-    echo "  cax                 - Command for interacting with CAX"
-    echo "  help                - Display help menu"
-    echo
+    cat << EOF
+Usage: autonity <command> <subcommand>
+
+Available commands:
+  validator           - Command for interacting with Validator management
+  wallet              - Command for interacting with Wallet management
+  node                - Command for interacting with Node management
+  oracle              - Command for interacting with Oracle server management
+  cax                 - Command for interacting with CAX
+  help                - Display help menu
+
+EOF
     exit 0
 }
 
-# Check if the script path is provided as an argument
-if [[ $# -eq 0 ]]; then
-    display_help
-    exit 1
-fi
 
-# Define available commands and subcommands
-if [[ "$1" == "validator" ]]; then
-    if [[ "$2" == "setup" ]]; then
-        while true; do
-            clear
-            echo "===== Validator Management Menu ====="
-            echo "1. Create Validator"
-            echo "2. Bond & Unbond Validator"
-            echo "3. Pause & Reactivate Validator"
-            echo "4. Change Commission Rate"
-            echo "5. Exit"
-            echo "======================================"
-            read -p "Enter your choice (1-5): " choice
+[[ $# -eq 0 ]] && display_help && exit 1
 
-            case $choice in
-                1)
-                    $TOOLS/create-validator.sh
-                    ;;
-                2)
-                    $TOOLS/bond-unbond-validator.sh
-                    ;;
-                3)
-                    $TOOLS/pause-reactivate-validator.sh
-                    ;;
-                4) 
-                    $TOOLS/change-validator-commission.sh
-                    ;;
-                5)
-                    echo "Exiting..."
-                    exit 0
-                    ;;
-                *)
-                    echo "Invalid choice. Please enter a number between 1 and 5."
-                    ;;
-            esac
-            read -p "Press Enter to continue..."
-        done
-    elif [[ "$2" == "info" ]]; then
-        echo "Validator Info"
-        $TOOLS/validatorinfo.sh
-    elif [[ "$2" == "list" ]]; then
-        echo "Validator List"
-        $AUT validator list | awk '{print NR".",$0}'
-    elif [[ "$2" == "seat" && "$3" == "active" ]]; then
-        echo "Seat Active Validators List" 
-        $TOOLS/committe.sh
-    elif [[ "$2" == "committe" ]]; then
-        echo "Check if your validator is in the Seat Active"
-        $AUT protocol get-committee | grep $VALIDATORADDRESS && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
-    elif [[ "$2" == "help" ]]; then
-        echo "Usage: autonity validator <subcommand>"
-        echo
-        echo "Available subcommands:"
-        echo "  setup               - Validator setup"
-        echo "  info                - Display validator info"
-        echo "  list                - List all validators"
-        echo "  seat active         - Check active seats"
-        echo "  committe            - Check if your validator is in the active seats"
-        echo "  help                - Display help menu"
-    else
-        $AUTONITY validator help
-    fi
-elif [[ "$1" == "wallet" ]]; then
-    if [[ "$2" == "management" ]]; then
-        while true; do
-            clear
-            echo "===== Wallet Management Menu ====="
-            echo "1. Create Signature registration for game"
-            echo "2. Create Signature for Validator onboarded"
-            echo "3. Create transaction"
-            echo "4. Create wallet"
-            echo "5. Create backup wallet"
-            echo "6. Exit"
-            echo "====================================="
-            read -p "Enter your choice (1-6): " choice
-        
-            case $choice in
-                1)
-                    $TOOLS/signature.sh
-                    ;; 
-                2)  
-                    $TOOLS/valonboarded.sh
-                    ;;
-                3) 
-                    $TOOLS/tx.sh
-                    ;;
-                4)
-                    $TOOLS/create-other-wallet.sh
-                    ;;
-                5) 
-                    $TOOLS/backup-wallet.sh
-                    ;;
-                6)
-                    echo "Exiting..."
-                    exit 0
-                    ;;
-                *)
-                    echo "Invalid choice. Please enter a number between 1 and 6."
-                    ;;
-            esac
-            read -p "Press Enter to continue..."
-        done
-    elif [[ "$2" == "info" ]]; then
-        echo "Wallet Info"
-        echo "---------------------------------------------------------"
-        $TOOLS/wallet-info.sh
-    elif [[ "$2" == "list" ]]; then
-        echo "Wallet List"
-        $AUT account list
-    elif [[ "$2" == "help" ]]; then
-        echo "Usage: autonity wallet <subcommand>"
-        echo
-        echo "Available subcommands:"
-        echo "  management          - Wallet management"
-        echo "  Info                - Check wallet details"
-        echo "  list                - List all wallets"
-        echo "  help                - Display help menu"
-    else
-        $AUTONITY wallet help
-    fi
-elif [[ "$1" == "node" ]]; then
-    if [[ "$2" == "start" ]]; then
-        echo "Start Node"
-        docker compose -f ~/autonity/docker-compose.yml up -d autonity
-    elif [[ "$2" == "logs" ]]; then
-        echo "Node Logs"
-        docker logs -f --tail=20 autonity
-    elif [[ "$2" == "epoch" ]]; then
-        echo "Node Epoch"
-        $TOOLS/epoch.sh
-    elif [[ "$2" == "sync" ]]; then
-        echo "Node Sync"
-        $AUT node info | jq '{eth_blockNumber, eth_syncing}'
-    elif [[ "$2" == "update" ]]; then
-        echo "Node Update"
-        docker compose -f $HOME/autonity/docker-compose.yml pull autonity
-        docker compose -f $HOME/autonity/docker-compose.yml up -d autonity
-    elif [[ "$2" == "stop" ]]; then
-        echo "Stop Node"
-        docker stop autonity
-    elif [[ "$2" == "restart" ]]; then
-        echo "Restart Node"
-        docker restart autonity
-    elif [[ "$2" == "help" ]]; then
-        echo "Usage: autonity node <subcommand>"
-        echo
-        echo "Available subcommands:"
-        echo "  start      - Start node"
-        echo "  stop       - Stop node"
-        echo "  restart    - Restart node"
-        echo "  logs       - Display node logs"
-        echo "  epoch      - Display epoch"
-        echo "  sync       - Display sync status"
-        echo "  update     - Update node"
-        echo "  help       - Display help menu"
-    else
-        $AUTONITY node help
-    fi
-elif [[ "$1" == "oracle" ]]; then
-    if [[ "$2" == "start" ]]; then
-        echo "Start Oracle"
-        docker compose -f ~/autonity/docker-compose.yml up -d oracle
-    elif [[ "$2" == "logs" ]]; then
-        echo "Oracle Logs"
-        docker logs -f --tail=20 oracle
-    elif [[ "$2" == "stop" ]]; then
-        echo "Stop Oracle"
-        docker stop oracle
-    elif [[ "$2" == "restart" ]]; then
-        echo "Restart Oracle"
-        docker restart oracle
-    elif [[ "$2" == "update" ]]; then
-        echo "Oracle Update"
-        docker compose -f $HOME/autonity/docker-compose.yml pull oracle
-        docker compose -f $HOME/autonity/docker-compose.yml up -d oracle
-    elif [[ "$2" == "help" ]]; then
-        echo "Usage: autonity oracle <subcommand>"
-        echo
-        echo "Available subcommands:"
-        echo "  start      - Start oracle"
-        echo "  stop       - Stop oracle"
-        echo "  restart    - Restart oracle"
-        echo "  logs       - Check oracle logs"
-        echo "  update     - Update oracle"
-        echo "  help       - Display help menu"
-    else
-        $AUTONITY oracle help
-        fi
-    elif [[ "$1" == "cax" ]]; then
-    if [[ "$2" == "menu" ]]; then
-        while true; do
-            clear
-            echo "===== CAX Management Menu ====="
-            echo "1. Create Api Key"
-            echo "2. Check Balance"
-            echo "3. Place Order"
-            echo "4. Cancel Order"
-            echo "5. Withdraw"
-            echo "6. Exit"
-            echo "====================================="
-            read -p "Enter your choice (1-6): " choice
-        
-            case $choice in
-                1)
-                    $CAX/generate-api.sh
-                    ;; 
-                2)  
-                    $CAX/check-balance.sh
-                    ;;
-                3) 
-                   $CAX/order.sh
-                    ;;
-                4)
-                    $CAX/cancel-order.sh
-                    ;;
-                5) 
-                    $CAX/withdraw.sh
-                    ;;
-                6)
-                    echo "Exiting..."
-                    exit 0
-                    ;;
-                *)
-                    echo "Invalid choice. Please enter a number between 1 and 6."
-                    ;;
-            esac
-            read -p "Press Enter to continue..."
-        done
-    elif [[ "$2" == "help" ]]; then
-        echo "Usage: autonity cax <subcommand>"
-        echo
-        echo "Available subcommands:"
-        echo "  menu      - CAX Management Menu"
-        echo "  help       - Display help menu"
-    else
-        $AUTONITY cax help
-    fi
-    elif [[ "$1" == "help" ]]; then
-     display_help
-       else
-     echo "Invalid command"
-       display_help
-        fi
+
+case "$1" in
+    validator)
+        case "$2" in
+            setup)
+                while true; do
+                    clear
+                    echo "===== Validator Management Menu ====="
+                    options=("Create Validator" "Bond & Unbond Validator" "Pause & Reactivate Validator" "Change Commission Rate" "Exit")
+                    PS3="Enter your choice (1-${#options[@]}): "
+                    select opt in "${options[@]}"; do
+                        case $REPLY in
+                            1) $TOOLS/create-validator.sh ;;
+                            2) $TOOLS/bond-unbond-validator.sh ;;
+                            3) $TOOLS/pause-reactivate-validator.sh ;;
+                            4) $TOOLS/change-validator-commission.sh ;;
+                            5) echo "Exiting..." && exit 0 ;;
+                            *) echo "Invalid choice. Please enter a number between 1-5." ;;
+                        esac
+                        break
+                    done
+                    read -p "Press Enter to continue..."
+                done
+                ;;
+            info) echo "Validator Info" && $TOOLS/validatorinfo.sh ;;
+            list) echo "Validator List" && $AUT validator list | awk '{print NR".",$0}' ;;
+            seat) [[ "$3" == "active" ]] && echo "Seat Active Validators List" && $TOOLS/committe.sh ;;
+            committe) 
+                echo "Check if your validator is in the Seat Active"
+                $AUT protocol get-committee | grep $VALIDATORADDRESS && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
+                ;;
+            help|*) $AUTONITY validator help ;;
+        esac
+        ;;
+    wallet)
+        case "$2" in
+            management)
+                while true; do
+                    clear
+                    echo "===== Wallet Management Menu ====="
+                    options=("Create Signature registration for game" "Create Signature for Validator onboarded" "Create transaction" "Create wallet" "Create backup wallet" "Exit")
+                    PS3="Enter your choice (1-${#options[@]}): "
+                    select opt in "${options[@]}"; do
+                        case $REPLY in
+                            1) $TOOLS/signature.sh ;;
+                            2) $TOOLS/valonboarded.sh ;;
+                            3) $TOOLS/tx.sh ;;
+                            4) $TOOLS/create-other-wallet.sh ;;
+                            5) $TOOLS/backup-wallet.sh ;;
+                            6) echo "Exiting..." && exit 0 ;;
+                            *) echo "Invalid choice. Please enter a number between 1-6." ;;
+                        esac
+                        break
+                    done
+                    read -p "Press Enter to continue..."
+                done
+                ;;
+            info) echo "Wallet Info" && $TOOLS/wallet-info.sh ;;
+            list) echo "Wallet List" && $AUT account list ;;
+            help|*) $AUTONITY wallet help ;;
+        esac
+        ;;
+    node)
+        case "$2" in
+            start) echo "Start Node" && docker-compose -f ~/autonity/docker-compose.yml up -d autonity ;;
+            logs) echo "Node Logs" && docker logs -f --tail=20 autonity ;;
+            epoch) echo "Node Epoch" && $TOOLS/epoch.sh ;;
+            sync) echo "Node Sync" && $AUT node info | jq '{eth_blockNumber, eth_syncing}' ;;
+            update) 
+                echo "Node Update"
+                docker-compose -f $HOME/autonity/docker-compose.yml pull autonity
+                docker-compose -f $HOME/autonity/docker-compose.yml up -d autonity
+                ;;
+            stop) echo "Stop Node" && docker stop autonity ;;
+            restart) echo "Restart Node" && docker restart autonity ;;
+            help|*) $AUTONITY node help ;;
+        esac
+        ;;
+    oracle)
+        case "$2" in
+            start) echo "Start Oracle" && docker-compose -f ~/autonity/docker-compose.yml up -d oracle ;;
+            logs) echo "Oracle Logs" && docker logs -f --tail=20 oracle ;;
+            stop) echo "Stop Oracle" && docker stop oracle ;;
+            restart) echo "Restart Oracle" && docker restart oracle ;;
+            update) 
+                echo "Oracle Update"
+                docker-compose -f $HOME/autonity/docker-compose.yml pull oracle
+                docker-compose -f $HOME/autonity/docker-compose.yml up -d oracle
+                ;;
+            help|*) $AUTONITY oracle help ;;
+        esac
+        ;;
+    cax)
+        case "$2" in
+            menu)
+                while true; do
+                    clear
+                    echo "===== CAX Management Menu ====="
+                    options=("Create Api Key" "Check Balance" "Place Order" "Cancel Order" "Withdraw" "Exit")
+                    PS3="Enter your choice (1-${#options[@]}): "
+                    select opt in "${options[@]}"; do
+                        case $REPLY in
+                            1) $CAX/generate-api.sh ;;
+                            2) $CAX/check-balance.sh ;;
+                            3) $CAX/order.sh ;;
+                            4) $CAX/cancel-order.sh ;;
+                            5) $CAX/withdraw.sh ;;
+                            6) echo "Exiting..." && exit 0 ;;
+                            *) echo "Invalid choice. Please enter a number between 1-6." ;;
+                        esac
+                        break
+                    done
+                    read -p "Press Enter to continue..."
+                done
+                ;;
+            help|*) $AUTONITY cax help ;;
+        esac
+        ;;
+    help|*) display_help ;;
+esac
 
 exit 0
