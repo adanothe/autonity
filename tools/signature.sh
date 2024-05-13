@@ -1,61 +1,62 @@
 #!/bin/bash
 
-# Function to log messages
-log_message() {
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1"
+
+display_error() {
+    echo "Error: $1"
+    exit 1
 }
 
-# Get the parent directory of the script
-REPO_DIR="autonity"
-PARENT_DIR="$HOME/$REPO_DIR"
+load_env_variables() {
+    local repo_dir="autonity"
+    local parent_dir="$HOME/$repo_dir"
+    local env_file="$parent_dir/.env"
 
-# Load environment variables from .env file in the parent directory
-ENV_FILE="$PARENT_DIR/.env"
+    if [ -f "$env_file" ]; then
+        source "$env_file"
+    else
+        display_error "File .env not found in the parent directory."
+    fi
+}
 
-if [ -f "$ENV_FILE" ]; then
-    source "$ENV_FILE"
-    log_message "Load environment variables"
-else
-    echo "Error: File .env not found in the parent directory."
-    exit 1
-fi
+check_aut_command() {
+    local aut_command=$(which aut)
+    if [ -z "$aut_command" ]; then
+        display_error "'aut' command not found."
+    fi
+}
 
-# Define the location of aut
-AUT=$(which aut)
-if [ -z "$AUT" ]; then
-    echo "Error: 'aut' command not found."
-    exit 1
-fi
-log_message "Check aut directory"
+sign_message() {
+    local message="I have read and agree to comply with the Piccadilly Circus Games Competition Terms and Conditions published on IPFS with CID QmVghJVoWkFPtMBUcCiqs7Utydgkfe19wkLunhS5t57yEu"
+    local keyfile="/root/.autonity/keystore/treasury.key"
+    local password="$KEYPASSWORD"
 
-# Define the location of the key file
-KEYFILE="/root/.autonity/keystore/treasury.key"
-log_message "Check keyfile directory"
+    if [ -z "$password" ]; then
+        display_error "Password not found in .env file."
+    fi
 
-# Define the message to be signed
-MESSAGE="I have read and agree to comply with the Piccadilly Circus Games Competition Terms and Conditions published on IPFS with CID QmVghJVoWkFPtMBUcCiqs7Utydgkfe19wkLunhS5t57yEu"
-log_message "setup message to be signed"
+    local signed_message=$(aut account sign-message "$message" --keyfile "$keyfile" --password "$password" | grep -o '0x[0-9a-fA-F]*')
+    echo "$signed_message"
+}
 
-# Get the password from the environment variable
-PASSWORD="$KEYPASSWORD"
+get_autonity_address() {
+    local keyfile="/root/.autonity/keystore/treasury.key"
+    local autonity_address=$(aut account info --keyfile "$keyfile" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
+    echo "$autonity_address"
+}
 
-# Check if PASSWORD is not empty
-if [ -z "$PASSWORD" ]; then
-    echo "Error: Password not found in .env file."
-    exit 1
-fi
+main() {
+    load_env_variables
+    check_aut_command
 
-# Run the command to sign the message
-SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$KEYFILE" --password "$PASSWORD" | grep -o '0x[0-9a-fA-F]*')
+    echo "SIGNATURE:"
+    signed_message=$(sign_message)
+    echo "$signed_message"
 
-# Run the command to check autonity address
-AUTONITY_ADDRESS=$("$AUT" account info --keyfile "$KEYFILE" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
+    echo "AUTONITY ADDRESS:"
+    autonity_address=$(get_autonity_address)
+    echo "$autonity_address"
 
-# Display the signed message
-echo "SIGNATURE:"
-echo "$SIGNED_MESSAGE"
-echo "AUTONITY ADDRESS:"
-echo "$AUTONITY_ADDRESS"
+    echo "Registration Link: https://game.autonity.org/getting-started/register.html"
+}
 
-# Display registration link
-echo "Registration Link: https://game.autonity.org/getting-started/register.html"
+main
