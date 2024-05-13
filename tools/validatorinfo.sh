@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AUT=$(which aut)
+AUT=$(command -v aut)
 
 $AUT validator info | jq -r '
   "Treasury address   : \(.treasury)",
@@ -10,7 +10,7 @@ $AUT validator info | jq -r '
   "Consensus key      : \(.consensus_key)",
   "Bonded stake       : \(.bonded_stake / 1e18) NTN",
   "Self bonded stake  : \(.self_bonded_stake / 1e18) NTN",
-  "Commission rate    : \(.commission_rate / 10000 * 100)%",
+  "Commission rate    : \(.commission_rate * 100 / 10000)%", 
   "Total slashed      : \(.total_slashed)",
   "Jail release block : \(.jail_release_block)",
   "Validator status   : \(.state | if . == 0 then "active" elif . == 1 then "paused" elif . == 2 then "jailed" else "unknown" end)"
