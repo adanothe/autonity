@@ -3,34 +3,31 @@
 AUT=$(which aut)
 source $HOME/autonity/.env
 
-read -p "choose currency to send 1. ATN or 2. NTN : " CURRENCY
+echo "Autonity Currency Transfer"
+echo "--------------------------"
+
+read -p "Choose currency to send (1 for ATN, 2 for NTN): " CURRENCY
 if [ "$CURRENCY" != "1" ] && [ "$CURRENCY" != "2" ]; then
-    echo "Invalid currency"
+    echo "Invalid currency selection"
     exit 1
 fi
 
 if [ "$CURRENCY" == "1" ]; then
-    export 'CURRENCY'="ATN"
+    CURRENCY_NAME="ATN"
+elif [ "$CURRENCY" == "2" ]; then
+    CURRENCY_NAME="NTN"
 fi
 
-if [ "$CURRENCY" == "2" ]; then
-    export 'CURRENCY'="NTN"
-fi
+read -p "Enter the recipient's address: " ADDRESS
+read -p "Enter the amount to send: " VALUE
 
-read -p "Enter the address to send to: " ADDRESS
-read -p "Enter the value to send: " VALUE
+export 'KEYFILEPWD'="$KEYPASSWORD"
 
-if [ "$CURRENCY" == "ATN" ]; then
-    export 'KEYFILEPWD'="$KEYPASSWORD"
+if [ "$CURRENCY" == "1" ]; then
     TX_HASH=$($AUT tx make --to $ADDRESS --value $VALUE | $AUT tx sign - | $AUT tx send -)
-fi
-
-if [ "$CURRENCY" == "NTN" ]; then
-    export 'KEYFILEPWD'="$KEYPASSWORD"
+else
     TX_HASH=$($AUT tx make --to $ADDRESS --value $VALUE --ntn | $AUT tx sign - | $AUT tx send -)
     echo "Transaction hash: https://piccadilly.autonity.org/tx/$TX_HASH"
 fi
 
 exit 0
-
-}
