@@ -1,4 +1,3 @@
-  GNU nano 6.2                                                                           dpx.sh                                                                                     
 #!/bin/bash
 
 clear
@@ -6,9 +5,9 @@ clear
 echo "Autonity Validator Registration"
 echo "-----------------------------------------------"
 
-DOCKER=$(which docker)
-ETHKEY=$(which ethkey)
-AUT=$(which aut)
+DOCKER=$(command -v docker)
+ETHKEY=$(command -v ethkey)
+AUT=$(command -v aut)
 
 source ~/autonity/.env
 
@@ -51,3 +50,5 @@ echo "Transaction hash: https://piccadilly.autonity.org/tx/$TX_HASH"
 echo "Your validator address is: $VALIDATOR_IDENTIFIER_ADDRESS"
 echo "validator= $VALIDATOR_IDENTIFIER_ADDRESS" >> ~/.autrc
 echo "to check detail validator, run: autonity validator info"
+
+read -p "Press enter to exit"
