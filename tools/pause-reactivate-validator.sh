@@ -1,58 +1,46 @@
 #!/bin/bash
 
-# aut Location
-AUT=$(which aut)
+if ! command -v aut &> /dev/null; then
+    echo "Error: 'aut' command not found. Make sure it is installed and accessible in your PATH."
+    exit 1
+fi
 
-# Retrieve ENODE from aut node info output
-ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-echo "ENODE retrieved: $ENODE" >/dev/null
+AUT_BIN_PATH=$(command -v aut)
+ENODE=$("$AUT_BIN_PATH" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+echo "ENODE retrieved: $ENODE"
+VALIDATOR_IDENTIFIER_ADDRESS=$("$AUT_BIN_PATH" validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*')
+echo "Validator identifier address retrieved: $VALIDATOR_IDENTIFIER_ADDRESS"
 
-# Retrieve validator identifier address from enode 
-VALIDATOR_IDENTIFIER_ADDRESS=$($AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*')
-echo "Validator identifier address retrieved: $VALIDATOR_IDENTIFIER_ADDRESS" >/dev/null
-
-# option chosen to pause or activate validator
-echo "Choose an option to pause or activate the validator"
-echo "1. activate validator"
-echo "2. pause validator"
+echo "Choose an option to pause or activate the validator:"
+echo "1. Activate validator"
+echo "2. Pause validator"
 read -p "Enter your choice: " choice
-if [ $choice -eq 1 ]
-then
-    echo "You have chosen to activate the validator"
-elif [ $choice -eq 2 ]
-then
-    echo "You have chosen to pause the validator"
-else
-    echo "Invalid choice"
-fi
 
-# Run aut activate or pause validator command
-if [ $choice -eq 1 ]
-then
-    # Run aut activate validator command
-    echo "Running activate validator..."
-    export 'KEYFILEPWD'="$KEYPASSWORD"
-    $AUT validator activate --validator $VALIDATOR_IDENTIFIER_ADDRESS | $AUT tx sign - | $AUT tx send -
-    echo "activate validator completed"
-else
-    # Run aut pause validator command
-    echo "Running pause validator..."
-    export 'KEYFILEPWD'="$KEYPASSWORD"
-    $AUT validator pause --validator $VALIDATOR_IDENTIFIER_ADDRESS | $AUT tx sign - | $AUT tx send -
-    echo "pause validator completed"
-fi
+case $choice in
+    1)
+        echo "You have chosen to activate the validator"
+        ACTION="activate"
+        ;;
+    2)
+        echo "You have chosen to pause the validator"
+        ACTION="pause"
+        ;;
+    *)
+        echo "Invalid choice, exiting."
+        exit 1
+        ;;
+esac
 
-# Retrieve validator status
-STATE=$($AUT validator info --validator $VALIDATOR_IDENTIFIER_ADDRESS | jq -r '.state')
+echo "Running $ACTION validator..."
+export 'KEYFILEPWD'="$KEYPASSWORD"
+"$AUT_BIN_PATH" validator $ACTION --validator $VALIDATOR_IDENTIFIER_ADDRESS | "$AUT_BIN_PATH" tx sign - | "$AUT_BIN_PATH" tx send -
+echo "$ACTION validator completed"
 
-# Check the state
-if [ "$STATE" -eq 0 ]; then
-    echo "Validator is activated"
-elif [ "$STATE" -eq 1 ]; then
-    echo "Validator is paused"
-elif [ "$STATE" -eq 2 ]; then
-    echo "Validator is jailed"
-else
-    echo "Unknown state"
-fi
+STATE=$("$AUT_BIN_PATH" validator info --validator $VALIDATOR_IDENTIFIER_ADDRESS | jq -r '.state')
 
+case $STATE in
+    0) echo "Validator is activated";;
+    1) echo "Validator is paused";;
+    2) echo "Validator is jailed";;
+    *) echo "Unknown state";;
+esac
