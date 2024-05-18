@@ -67,6 +67,13 @@ if ! command_exists http; then
     echo "HTTPie installed successfully."
 fi
 
+# Add Expect installation
+if ! command_exists expect; then
+    echo "Installing Expect..."
+    sudo apt install expect -y
+    echo "Expect installed successfully."
+fi
+
 echo "Cloning tools repository..."
 git clone https://github.com/adanothe/autonity.git "$AUTONITY_DIR"
 echo "Tools repository cloned successfully."
