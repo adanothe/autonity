@@ -16,6 +16,7 @@ AUTONITY_ORACLE="$HOME_DIR/.autonity/oracle"
 AUTONITY_ENV="$AUTONITY_DIR/.env"
 AUTONITY_ETC="$HOME_DIR/.autrc"
 
+mkdir -p "$AUTONITY_ORACLE"
 DOCKER_INSTALL_SCRIPT="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/docker/docker.sh"
 GO_INSTALL_SCRIPT="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/golang/go.sh"
 HTTP_PACKAGES="httpie gnupg2"
