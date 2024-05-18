@@ -108,8 +108,8 @@ sleep 5
 echo "Setting up .autrc configuration file..."
 cat <<EOF >"$AUTONITY_ETC"
 [aut]
-rpc_endpoint=ws://127.0.0.1:8546
-keyfile=~/.autonity/keystore/treasury.key
+rpc_endpoint= ws://127.0.0.1:8546
+keyfile= ~/.autonity/keystore/treasury.key
 EOF
 echo ".autrc configuration file set up successfully."
 
