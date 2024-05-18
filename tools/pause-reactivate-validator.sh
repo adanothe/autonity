@@ -5,6 +5,7 @@ if ! command -v aut &> /dev/null; then
     exit 1
 fi
 
+source ~/autonity/.env
 AUT_BIN_PATH=$(command -v aut)
 ENODE=$("$AUT_BIN_PATH" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
 echo "ENODE retrieved: $ENODE"
