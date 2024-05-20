@@ -1,9 +1,8 @@
 #!/bin/bash
 
-
 AUT=$(command -v aut)
 AUTONITY=$(command -v autonity)
-VALIDATORADDRESS=$(grep validator= "$HOME/.autrc" | cut -d'=' -f2)
+VALIDATORADDRESS=$(grep validator= "$HOME/.autrc" | cut -d'=' -f2 | tr -d ' ')
 KEFILE1="$HOME/.autonity/keystore/oracle.key"
 KEFILE2="$HOME/.autonity/keystore/treasury.key"
 TOOLS="$HOME/autonity/tools"
@@ -71,8 +70,8 @@ EOF
             fi
             ;;
         committe)
-            echo "Check if your validator is in the Seat Active"
-            $AUT protocol get-committee | grep "$VALIDATORADDRESS" && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
+            echo "Check your validator in the Seat Active"
+            $AUT protocol get-committee | grep "$VALIDATORADDRESS" > /dev/null && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
             ;;
         help)
             cat <<EOF
@@ -143,7 +142,7 @@ elif [[ "$1" == "node" ]]; then
         sync)
             echo "Node Sync" && $AUT node info | jq -r '
                 if .eth_syncing == false then
-                    "Node already synced"
+                    "Node is already synced"
                 elif .eth_syncing | has("currentBlock") then
                     "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
                 else
