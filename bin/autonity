@@ -140,7 +140,17 @@ elif [[ "$1" == "node" ]]; then
         start) echo "Start Node" && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
         logs) echo "Node Logs" && docker logs -f --tail=20 autonity ;;
         epoch) echo "Node Epoch" && $TOOLS/epoch.sh ;;
-        sync) echo "Node Sync" && $AUT node info | jq -r '"Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"' ;;
+        sync)
+            echo "Node Sync" && $AUT node info | jq -r '
+                if .eth_syncing == false then
+                    "Node already synced"
+                elif .eth_syncing | has("currentBlock") then
+                    "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
+                else
+                    "Sync information is not available"
+                end
+            '
+            ;;
         update) echo "Node Update" && docker compose -f "$DOCKER_COMPOSE" pull autonity && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
         stop) echo "Stop Node" && docker stop autonity ;;
         restart) echo "Restart Node" && docker restart autonity ;;
