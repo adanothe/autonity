@@ -33,13 +33,11 @@ UBUNTU_VERSION=$(lsb_release -rs)
 mkdir -p "$AUTONITY_ORACLE"
 
 if ! command_exists docker; then
-    echo "Installing Docker..."
-    curl -sSfL "$DOCKER_INSTALL_SCRIPT" | sudo sh && echo "Docker installed successfully."
+    curl -sSfL "$DOCKER_INSTALL_SCRIPT" | sudo sh
 fi
 
 if ! command_exists go; then
-    echo "Installing Go..."
-    curl -sSfL "$GO_INSTALL_SCRIPT" | sudo bash && echo "Go installed successfully."
+    curl -sSfL "$GO_INSTALL_SCRIPT" | sudo bash 
 fi
 
 if [[ $UBUNTU_VERSION == "20."* ]]; then
@@ -52,39 +50,32 @@ else
 fi
 
 if ! dpkg -s $PYTHON_PACKAGES &>/dev/null; then
-    echo "Installing Python dependencies..."
-    sudo apt install -y $PYTHON_PACKAGES && echo "Python dependencies installed successfully."
+    sudo apt install -y $PYTHON_PACKAGES 
 fi
 
 if ! command_exists pipx; then
-    echo "Installing pipx..."
-    sudo python3 -m pip install --upgrade pipx && echo "pipx installed successfully."
+    sudo python3 -m pip install --upgrade pipx 
 fi
 
 if ! command_exists aut; then
-    echo "Installing AUT..."
-    pipx install --force git+https://github.com/autonity/aut && sudo mv "$HOME/.local/bin/aut" /usr/local/bin/aut && echo "AUT installed successfully."
+    pipx install --force git+https://github.com/autonity/aut && sudo mv "$HOME/.local/bin/aut" /usr/local/bin/aut
 fi
 
 if ! command_exists http; then
-    echo "Installing HTTPie..."
     curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list
-    sudo apt update && sudo apt install -y httpie && echo "HTTPie installed successfully."
+    sudo apt update && sudo apt install -y httpie
 fi
 
 if ! command_exists expect; then
-    echo "Installing Expect..."
-    sudo apt install -y expect && echo "Expect installed successfully."
+    sudo apt install -y expect 
 fi
 
-git clone https://github.com/adanothe/autonity.git "$AUTONITY_DIR" && echo "Tools repository cloned successfully."
+git clone https://github.com/adanothe/autonity.git > /dev/null
 sudo cp "$AUTONITY_BIN/ethkey" /usr/bin/ && sudo chmod +x /usr/bin/ethkey
 sudo cp "$AUTONITY_BIN/autonity" /usr/bin/ && sudo chmod +x /usr/bin/autonity
-echo "ethkey and autonity CLI moved successfully."
-cp "$AUTONITY_PLUGINS/plugins-conf.yml" "$AUTONITY_ORACLE" && echo "plugins-conf.yml moved successfully."
-echo "Changing execution permissions for scripts..."
-chmod +x "$AUTONITY_TOOLS/"* "$AUTONITY_TOOLS/cax/"* && echo "Execution permissions changed successfully."
+cp "$AUTONITY_PLUGINS/plugins-conf.yml" "$AUTONITY_ORACLE"
+chmod +x "$AUTONITY_TOOLS/"* "$AUTONITY_TOOLS/cax/"*
 
 echo "Do you want to create a new validator or use an existing one?"
 select choice in "Create New Validator" "Use Existing Validator"; do
