@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 display_error() {
     echo "Error: $1"
     exit 1
