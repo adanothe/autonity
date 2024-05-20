@@ -4,6 +4,18 @@ command_exists() {
     command -v "$1" &>/dev/null
 }
 
+update_env_var() {
+    local var_name=$1
+    local var_value=$2
+    local env_file=$3
+
+    if grep -q "^$var_name=" "$env_file"; then
+        sed -i "s|^$var_name=.*|$var_name=$var_value|" "$env_file"
+    else
+        echo "$var_name=$var_value" >> "$env_file"
+    fi
+}
+
 HOME_DIR="$HOME"
 AUTONITY_DIR="$HOME_DIR/autonity"
 AUTONITY_BIN="$AUTONITY_DIR/bin"
@@ -12,24 +24,22 @@ AUTONITY_PLUGINS="$AUTONITY_DIR/plugins"
 AUTONITY_KEYSTORE="$HOME_DIR/.autonity/keystore"
 AUTONITY_ORACLE="$HOME_DIR/.autonity/oracle"
 AUTONITY_ENV="$AUTONITY_DIR/.env"
-AUTONITY_ETC="$HOME_DIR/.autrc"
-
+AUTRC_FILE="$HOME_DIR/.autrc"
 DOCKER_INSTALL_SCRIPT="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/docker/docker.sh"
 GO_INSTALL_SCRIPT="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/golang/go.sh"
-PYTHON_PACKAGES=""
 HTTP_PACKAGES="httpie gnupg2"
 UBUNTU_VERSION=$(lsb_release -rs)
 
+mkdir -p "$AUTONITY_ORACLE"
+
 if ! command_exists docker; then
     echo "Installing Docker..."
-    curl --proto '=https' --tlsv1.2 -sSfL "$DOCKER_INSTALL_SCRIPT" | sudo sh
-    echo "Docker installed successfully."
+    curl -sSfL "$DOCKER_INSTALL_SCRIPT" | sudo sh && echo "Docker installed successfully."
 fi
 
 if ! command_exists go; then
     echo "Installing Go..."
-    curl --proto '=https' --tlsv1.2 -sSfL "$GO_INSTALL_SCRIPT" | sudo bash
-    echo "Go installed successfully."
+    curl -sSfL "$GO_INSTALL_SCRIPT" | sudo bash && echo "Go installed successfully."
 fi
 
 if [[ $UBUNTU_VERSION == "20."* ]]; then
@@ -37,80 +47,88 @@ if [[ $UBUNTU_VERSION == "20."* ]]; then
 elif [[ $UBUNTU_VERSION == "22."* ]]; then
     PYTHON_PACKAGES="python3-pip python3.10-venv"
 else
+    echo "Unsupported Ubuntu version: $UBUNTU_VERSION"
     exit 1
 fi
 
 if ! dpkg -s $PYTHON_PACKAGES &>/dev/null; then
     echo "Installing Python dependencies..."
-    sudo apt install $PYTHON_PACKAGES -y
-    echo "Python dependencies installed successfully."
+    sudo apt install -y $PYTHON_PACKAGES && echo "Python dependencies installed successfully."
 fi
 
 if ! command_exists pipx; then
     echo "Installing pipx..."
-    sudo python3 -m pip install --upgrade pipx >/dev/null 2>&1
-    echo "pipx installed successfully."
+    sudo python3 -m pip install --upgrade pipx && echo "pipx installed successfully."
 fi
 
 if ! command_exists aut; then
     echo "Installing AUT..."
-    pipx install --force git+https://github.com/autonity/aut && sudo mv "$HOME/.local/bin/aut" /usr/local/bin/aut >/dev/null 2>&1
-    echo "AUT installed successfully."
+    pipx install --force git+https://github.com/autonity/aut && sudo mv "$HOME/.local/bin/aut" /usr/local/bin/aut && echo "AUT installed successfully."
 fi
 
 if ! command_exists http; then
     echo "Installing HTTPie..."
     curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
-    sudo echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" >/etc/apt/sources.list.d/httpie.list
-    sudo apt update
-    sudo apt install httpie -y
-    echo "HTTPie installed successfully."
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list
+    sudo apt update && sudo apt install -y httpie && echo "HTTPie installed successfully."
 fi
 
-# Add Expect installation
 if ! command_exists expect; then
     echo "Installing Expect..."
-    sudo apt install expect -y
-    echo "Expect installed successfully."
+    sudo apt install -y expect && echo "Expect installed successfully."
 fi
 
-echo "Cloning tools repository..."
-git clone https://github.com/adanothe/autonity.git "$AUTONITY_DIR"
-echo "Tools repository cloned successfully."
-
-read -p "Enter your KEYPASSWORD: " KEYPASSWORD
-echo "KEYPASSWORD=$KEYPASSWORD" >"$AUTONITY_ENV"
-echo "YOURIP=$(curl -4 ifconfig.me)" >>"$AUTONITY_ENV"
-
-echo "Moving ethkey and autonity cli..."
+git clone https://github.com/adanothe/autonity.git "$AUTONITY_DIR" && echo "Tools repository cloned successfully."
 sudo cp "$AUTONITY_BIN/ethkey" /usr/bin/ && sudo chmod +x /usr/bin/ethkey
 sudo cp "$AUTONITY_BIN/autonity" /usr/bin/ && sudo chmod +x /usr/bin/autonity
-echo "ethkey and autonity cli moved successfully."
+echo "ethkey and autonity CLI moved successfully."
+cp "$AUTONITY_PLUGINS/plugins-conf.yml" "$AUTONITY_ORACLE" && echo "plugins-conf.yml moved successfully."
+echo "Changing execution permissions for scripts..."
+chmod +x "$AUTONITY_TOOLS/"* "$AUTONITY_TOOLS/cax/"* && echo "Execution permissions changed successfully."
 
-echo "Moving plugins-conf.yml..."
-cp "$AUTONITY_PLUGINS/plugins-conf.yml" "$AUTONITY_ORACLE" >/dev/null 2>&1
-echo "plugins-conf.yml moved successfully."
+echo "Do you want to create a new validator or use an existing one?"
+select choice in "Create New Validator" "Use Existing Validator"; do
+    case $choice in
+        "Create New Validator")
+            read -sp "Enter your KEYPASSWORD: " KEYPASSWORD
+            update_env_var "KEYPASSWORD" "$KEYPASSWORD" "$AUTONITY_ENV"
+            update_env_var "YOURIP" "$(curl -4 ifconfig.me)" "$AUTONITY_ENV"
 
-echo "Changing execution permission for scripts..."
-chmod +x "$AUTONITY_TOOLS/"* "$AUTONITY_TOOLS/cax/"* >/dev/null 2>&1
-echo "Execution permission changed successfully."
-
-echo "Creating wallet..."
-"$AUTONITY_TOOLS/create-wallet.sh" >/dev/null 2>&1
-echo "Wallet created successfully."
-echo "Your wallet password is $KEYPASSWORD"
-sleep 5
-
-echo "Setting up .autrc configuration file..."
-cat <<EOF >"$AUTONITY_ETC"
+            cat <<EOF >"$AUTRC_FILE"
 [aut]
 rpc_endpoint= ws://127.0.0.1:8546
 keyfile= ~/.autonity/keystore/treasury.key
 EOF
-echo ".autrc configuration file set up successfully."
+            "$AUTONITY_TOOLS/create-wallet.sh" > /dev/null && echo "Wallet created successfully."
+            break
+            ;;
+        "Use Existing Validator")
+            read -p "Enter your old node IP: " YOURIP
+            read -sp "Enter your KEYPASSWORD: " KEYPASSWORD
+            update_env_var "YOURIP" "$YOURIP" "$AUTONITY_ENV"
+            update_env_var "KEYPASSWORD" "$KEYPASSWORD" "$AUTONITY_ENV"
+
+            KEYSTOREDIR=~/.autonity/keystore
+            mkdir -p "$KEYSTOREDIR"
+            echo "Please move your wallet backup to $KEYSTOREDIR with the file name oracle.key and treasury.key."
+
+            mkdir -p ~/autonity-chaindata/autonity
+            echo "Please move your autonitykeys backup to ~/autonity-chaindata/autonity."
+
+            read -p "Enter your validator address: " VALIDATOR_ADDRESS
+            cat <<EOF >"$AUTRC_FILE"
+[aut]
+rpc_endpoint= ws://127.0.0.1:8546
+keyfile= ~/.autonity/keystore/treasury.key
+validator= $VALIDATOR_ADDRESS
+EOF
+            break
+            ;;
+    esac
+done
 
 echo "Installation completed"
 sleep 5
 echo -e "To start node: \e[1mautonity node start\e[0m"
 echo -e "To check node logs: \e[1mautonity node logs\e[0m"
-echo -e "To check node sync: \e[1mautonity node sync\e[0m" if false your node is synced
+echo -e "To check node sync: \e[1mautonity node sync\e[0m"

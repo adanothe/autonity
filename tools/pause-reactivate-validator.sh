@@ -5,11 +5,10 @@ if ! command -v aut &> /dev/null; then
     exit 1
 fi
 
+source ~/autonity/.env
 AUT_BIN_PATH=$(command -v aut)
 ENODE=$("$AUT_BIN_PATH" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-echo "ENODE retrieved: $ENODE"
 VALIDATOR_IDENTIFIER_ADDRESS=$("$AUT_BIN_PATH" validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*')
-echo "Validator identifier address retrieved: $VALIDATOR_IDENTIFIER_ADDRESS"
 
 echo "Choose an option to pause or activate the validator:"
 echo "1. Activate validator"
