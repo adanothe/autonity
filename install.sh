@@ -67,10 +67,6 @@ if ! command_exists http; then
     sudo apt update && sudo apt install -y httpie
 fi
 
-if ! command_exists expect; then
-    sudo apt install -y expect 
-fi
-
 git clone https://github.com/adanothe/autonity.git > /dev/null
 sudo cp "$AUTONITY_BIN/ethkey" /usr/bin/ && sudo chmod +x /usr/bin/ethkey
 sudo cp "$AUTONITY_BIN/autonity" /usr/bin/ && sudo chmod +x /usr/bin/autonity
