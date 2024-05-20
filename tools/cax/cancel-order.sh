@@ -1,16 +1,34 @@
 #!/bin/bash
 
-source $HOME/autonity/.env
+source "$HOME/autonity/.env"
 
-ORDERIDS=$(http GET https://cax.piccadilly.autonity.org/api/orders "API-Key:$APIKEY" | jq -r '.[] | select(.status == "open") | .order_id')
-if [[ -n "$ORDERIDS" ]]; then
-    for id in $ORDERIDS; do
-        order_status=$(http GET https://cax.piccadilly.autonity.org/api/orders/$id "API-Key:$APIKEY" 2>/dev/null | jq -r '.status')
+API_URL="https://cax.piccadilly.autonity.org/api/orders"
+API_KEY_HEADER="API-Key:$APIKEY"
+
+get_open_order_ids() {
+    http GET "$API_URL" "$API_KEY_HEADER" | jq -r '.[] | select(.status == "open") | .order_id'
+}
+
+get_order_status() {
+    local order_id=$1
+    http GET "$API_URL/$order_id" "$API_KEY_HEADER" 2>/dev/null | jq -r '.status'
+}
+
+cancel_order() {
+    local order_id=$1
+    http DELETE "$API_URL/$order_id" "$API_KEY_HEADER" >/dev/null 2>&1
+}
+
+order_ids=$(get_open_order_ids)
+
+if [[ -n "$order_ids" ]]; then
+    for order_id in $order_ids; do
+        order_status=$(get_order_status "$order_id")
         if [[ "$order_status" == "open" ]]; then
-            http DELETE "https://cax.piccadilly.autonity.org/api/orders/$id" "API-Key:$APIKEY" >/dev/null 2>&1
-            echo "Order id $id canceled"
+            cancel_order "$order_id"
+            echo "Order id $order_id canceled"
         else
-            echo "Order id $id already canceled or closed" >&2
+            echo "Order id $order_id already canceled or closed" >&2
         fi
     done
 else
