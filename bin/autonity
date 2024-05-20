@@ -98,10 +98,9 @@ elif [[ "$1" == "wallet" ]]; then
 ===== Wallet Management Menu =====
 1. Create Signature registration for game
 2. Create Signature for Validator onboarded
-3. Create transaction
-4. Create wallet
-5. Create backup wallet
-6. Exit
+3. Create wallet
+4. Create backup wallet
+5. Exit
 =====================================
 EOF
                 read -p "Enter your choice (1-6): " choice
@@ -109,16 +108,16 @@ EOF
                 case $choice in
                     1) $TOOLS/signature.sh ;;
                     2) $TOOLS/valonboarded.sh ;;
-                    3) $TOOLS/tx.sh ;;
-                    4) $TOOLS/create-other-wallet.sh ;;
-                    5) $TOOLS/backup-wallet.sh ;;
-                    6) echo "Exiting..." && exit 0 ;;
+                    3) $TOOLS/create-other-wallet.sh ;;
+                    4) $TOOLS/backup-wallet.sh ;;
+                    5) echo "Exiting..." && exit 0 ;;
                     *) echo "Invalid choice. Please enter a number between 1 and 6." ;;
                 esac
                 read -p "Press Enter to continue..."
             done
             ;;
         info) echo "Wallet Info" && echo "---------------------------------------------------------" && $TOOLS/wallet-info.sh ;;
+        tx) echo "Wallet tx" && $TOOLS/tx.sh ;;
         list) echo "Wallet List" && $AUT account list ;;
         help)
             cat <<EOF
@@ -127,6 +126,7 @@ Usage: autonity wallet <subcommand>
 Available subcommands:
   management  - Wallet management
   Info        - Check wallet details
+  tx          - create transaction
   list        - List all wallets
   help        - Display help menu
 EOF
