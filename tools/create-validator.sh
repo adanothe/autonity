@@ -5,15 +5,12 @@ clear
 echo "Autonity Validator Registration"
 echo "-----------------------------------------------"
 
+source ~/autonity/.env
 DOCKER=$(command -v docker)
 ETHKEY=$(command -v ethkey)
 AUT=$(command -v aut)
-
-source ~/autonity/.env
-
 ORACLE_KEY_FILE=/root/.autonity/keystore/oracle.key
 TREASURY_KEY_FILE=/root/.autonity/keystore/treasury.key
-
 PRIVATE_KEY_ORACLE=$($ETHKEY inspect --private "$ORACLE_KEY_FILE" <<< "$KEYPASSWORD" | grep "Private key" | awk '{print $3}')
 TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile "$TREASURY_KEY_FILE" | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
@@ -33,10 +30,8 @@ PROOF=$($DOCKER run -t -i \
     "$TREASURY_ACCOUNT_ADDRESS")
 
 PROOF=$(echo "$PROOF" | tr -cd '[:alnum:]')
-
 export 'KEYFILEPWD'="$KEYPASSWORD"
 TX_HASH=$($AUT validator register "$ENODE" "$ORACLE" "$CONSENSUS_KEY" "$PROOF" | $AUT tx sign - | $AUT tx send -)
-
 VALIDATOR_IDENTIFIER_ADDRESS=$($AUT validator compute-address "$ENODE" | grep -o '0x[a-zA-Z0-9]*')
 
 VALIDATOR=$($AUT validator list | grep "$VALIDATOR_IDENTIFIER_ADDRESS")
