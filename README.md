@@ -30,21 +30,20 @@ curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && 
 chmod +x install.sh && \
 bash install.sh 
 ```
-### Note:
-If you have already created a validator in a previous round, you can choose "Use Existing Validator" during installation. After installation, you must move the backup data of the validator, specifically `oracle.key` and `treasury.key` to the directory `$HOME/.autonity/keystore` and `autonitykeys` to the directory `$HOME/autonity-chaindata/autonity`.
+> **Note:**
+> If you have already created a validator in a previous round, you can choose "Use Existing Validator" during installation.
+> After installation, you must move the backup data of the validator, specifically `oracle.key` and `treasury.key` to the directory `$HOME/.autonity/keystore` and `autonitykeys` to the directory `$HOME/autonity-chaindata/autonity`.
 
-
-During installation, you will be asked to set a password for the key wallet. 
-The password will be used to unlock the wallet and sign transactions. 
-The password you create will be saved in the `$HOME/autonity/.env` file.
-Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore`. **PLEASE BACKUP**.
-
-There are 3 wallets that are created:
-- `treasury.key`: Serves as our treasury and is used by validators for various purposes, including sending transactions, managing validator lifecycle, and receiving staking rewards. It is also utilized for registration in the Piccadilly Circus Games Competition (PCGC).
-- `oracle.key`: Functions as the cryptographic identifier for the Oracle server. It is employed to sign price report transactions sent to the on-chain Oracle Contract, with its address serving as a unique identifier for the Oracle server. To prevent transaction failures due to insufficient gas, it is essential to pre-fund your `oracle.key` account before initiating transactions for online price report data. Be sure to keep your Oracle wallet sufficiently funded!
-- `autonitykeys`: On starting, by default AGC will automatically generate an `autonitykeys` file containing your node key and consensus key within the `autonity` subfolder of the `--datadir` specified when running the node are the main keys of the node, comprising node and consensus keys. These are located in the directory `$HOME/autonity-chaindata/autonity/` and play a crucial role in forming validator addresses and enodes. Additionally, they include the private key for gossip transactions among network nodes and the consensus key for participating in consensus as a validator.
-
-To backup all wallets, run the command `autonity wallet management`, then choose option 5.
+> **Important:**
+> During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the **.env** file.
+> Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore` **`PLEASE BACKUP`**.
+>
+> There are 3 wallets that were created:
+> - `treasury.key`: serves as our treasury and is used by validators for various purposes, including sending transactions, managing validator lifecycle, and receiving staking rewards. It is also utilized for registration in the Piccadilly Circus Games Competition (PCGC).
+> - `oracle.key`: functions as the cryptographic identifier for the Oracle server. It is employed to sign price report transactions sent to the on-chain Oracle Contract, with its address serving as a unique identifier for the Oracle server. To prevent transaction failures due to insufficient gas, it is essential to pre-fund your Oracle.key account before initiating transactions for online price report data. Be sure to keep your Oracle wallet sufficiently funded!
+> - `autonitykeys`: On starting, by default AGC will automatically generate an `autonitykeys` file containing your node key and consensus key within the `autonity` subfolder of the `--datadir` specified when running the node. These are located in the directory `$HOME/autonity-chaindata/autonity/` and play a crucial role in forming validator addresses and enodes. Additionally, they include the private key for gossip transactions among network nodes and the consensus key for participating in consensus as a validator.
+>
+> To backup all wallets, run the command `autonity wallet management` and choose option 4.
 
 ## Running Node
 
@@ -58,15 +57,15 @@ autonity node update              # Update node
 ```
 
 ## Register for Piccadilly Circus Games Competition
-### Note:
-If you have participated in the previous round, you do not need to register again.
-
-To sign-up and take part just [Complete the Registration Form](https://game.autonity.org/getting-started/register.html). Then run this command to get autonity address and signature: choose option 1
+To sign up and take part, just [Complete the Registration Form](https://game.autonity.org/getting-started/register.html). Then run this command to get autonity address and signature: choose option 1
 ```bash
 autonity wallet management
 ```
+> **Note:**
+> If you have participated in the previous round, you do not need to register again.
 
-Registered game participants will receive basic ‘get going’ funding of **1 ATN** and **1 NTN** to your participant account on-chain. As part of the game, registered game participants are automatically given an account funded with **1M fake USDC** in an off-chain exchange, the _Centralized Auton Exchange (CAX)_. This is your principal source of game funding for on-chain tasks.
+> **Important:**
+> Registered game participants will receive basic ‘get going’ funding of **1 ATN** and **1 NTN** to your participant account on-chain. As part of the game, registered game participants are automatically given an account funded with **1M fake USDC** in an off-chain exchange, the _Centralized Auton Exchange (CAX)_. This is your principal source of game funding for on-chain tasks.
 
 ## Setup Oracle Server
 
@@ -118,7 +117,7 @@ Choose option 2 to create signature and get enode for validator registration.
 
 ### Autonity Validator Management
 
-The `autonity validator management` command provides a set of subcommands to manage validators within the Autonity network.
+The `autonity validator` command provides a set of subcommands to manage validators within the Autonity network.
 
 Usage: `autonity validator <subcommands>`
 
