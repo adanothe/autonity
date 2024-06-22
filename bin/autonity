@@ -43,7 +43,8 @@ if [[ "$1" == "validator" ]]; then
 2. Bond & Unbond Validator
 3. Pause & Reactivate Validator
 4. Change Commission Rate
-5. Exit
+5. migrate Validator
+6. Exit
 ======================================
 EOF
                 read -p "Enter your choice (1-5): " choice
@@ -53,7 +54,8 @@ EOF
                     2) $TOOLS/bond-unbond-validator.sh ;;
                     3) $TOOLS/pause-reactivate-validator.sh ;;
                     4) $TOOLS/change-validator-commission.sh ;;
-                    5) echo "Exiting..." && exit 0 ;;
+                    5) $TOOLS/migrate.sh ;;
+                    6) echo "Exiting..." && exit 0 ;;
                     *) echo "Invalid choice. Please enter a number between 1 and 5." ;;
                 esac
                 read -p "Press Enter to continue..."

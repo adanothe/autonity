@@ -2,15 +2,14 @@
 
 source ~/autonity/.env
 
-AUT=$(command -v aut)
-ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-VALIDATOR_IDENTIFIER_ADDRESS=$($AUT validator compute-address $ENODE | grep -o '0x[a-zA-Z0-9]*')
+aut=$(command -v aut)
+validator_address=$($aut validator info | jq -r '.node_address')
 
 bond_validator() {
     read -p "Enter amount to bond: " amount
     echo "Bonding $amount tokens to the validator..."
     export KEYFILEPWD="$KEYPASSWORD"
-    tx_hash=$($AUT validator bond --validator $VALIDATOR_IDENTIFIER_ADDRESS $amount | $AUT tx sign - | $AUT tx send -)
+    tx_hash=$($aut validator bond --validator $validator_address $amount | $aut tx sign - | $aut tx send -)
     echo "Bonding process completed"
     echo "Transaction hash: https://piccadilly.autonity.org/tx/$tx_hash"
 }
@@ -19,7 +18,7 @@ unbond_validator() {
     read -p "Enter amount to unbond: " amount
     echo "Unbonding $amount tokens from the validator..."
     export KEYFILEPWD="$KEYPASSWORD"
-    tx_hash=$($AUT validator unbond --validator $VALIDATOR_IDENTIFIER_ADDRESS $amount | $AUT tx sign - | $AUT tx send -)
+    tx_hash=$($aut validator unbond --validator $validator_address $amount | $aut tx sign - | $aut tx send -)
     echo "Unbonding process completed"
     echo "Transaction hash: https://piccadilly.autonity.org/tx/$tx_hash"
 }
