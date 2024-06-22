@@ -1,11 +1,5 @@
 # Setup Autonity Piccadilly Testnet & Join Autonity Piccadilly Circus Games Competition (PCGC) 
 
-  - Official Docs:      [Autonity Documentation](https://docs.autonity.org/)
-  - autonity github:    [github respostories](https://github.com/autonity/)
-  - Network explorer:   - [piccadilly](https://piccadilly.autonity.org/)
-                        - [bakerloo](https://bakerloo.autonity.org/)
-  - validaor explorer:  - [stakeflow](https://stakeflow.io/autonity-piccadilly)
-                        - [daic.capital](https://autonity.daic.capital/)
 
 ## Node Installation
 
