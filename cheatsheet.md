@@ -1,195 +1,104 @@
-# Autonity CLI Cheatsheet
-
 ## Table of Contents
 
-- [Validator Management](#validator-management)
-- [Wallet Management](#wallet-management)
-- [Node Management](#node-management)
-- [Oracle Management](#oracle-management)
-- [CAX Management](#cax-management)
-- [Help](#help-5)
+1. [Usage](#usage)
+2. [Commands](#commands)
+    - [Validator](#validator)
+    - [Wallet](#wallet)
+    - [Node](#node)
+    - [Oracle](#oracle)
+    - [CAX](#cax)
+    - [Help](#help)
 
-## Validator Management
+## Usage
 
-### setup
+```bash
+autonity <command> <subcommand>
+```
 
-Command: `autonity validator setup`
+## Commands
 
-Description: This command allows you to set up a validator. It presents a menu with the following options:
-1. Create Validator
-2. Bond & Unbond Validator
-3. Pause & Reactivate Validator
-4. Change Commission Rate
+### Validator
 
-You will be prompted to enter your choice, and the corresponding script will be executed based on your selection.
+Validator management.
 
-### info
+```bash
+autonity validator <subcommand>
+```
 
-Command: `autonity validator info`
+**Subcommands:**
+- `setup`: Displays an interactive menu for managing validators.
+- `info`: Displays validator information.
+- `list`: Lists all validators.
+- `seat active`: Checks active validators.
+- `committe`: Checks if your validator is in the committee.
+- `help`: Displays help for validator commands.
 
-Description: This command displays information about the validator.
+### Wallet
 
-### list
+Wallet management.
 
-Command: `autonity validator list`
+```bash
+autonity wallet <subcommand>
+```
 
-Description: This command lists all the validators in the Autonity network.
+**Subcommands:**
+- `management`: Displays an interactive menu for managing wallets.
+- `info`: Displays wallet information.
+- `tx`: Creates wallet transactions.
+- `list`: Lists all wallets.
+- `help`: Displays help for wallet commands.
 
-### seat active
+### Node
 
-Command: `autonity validator seat active`
+Node management.
 
-Description: This command displays the list of active validators in the Autonity network.
+```bash
+autonity node <subcommand>
+```
 
-### committe
+**Subcommands:**
+- `start`: Starts the node.
+- `stop`: Stops the node.
+- `restart`: Restarts the node.
+- `logs`: Displays node logs.
+- `epoch`: Displays the node's epoch.
+- `sync`: Displays the node's sync status.
+- `update`: Updates the node.
+- `help`: Displays help for node commands.
 
-Command: `autonity validator committe`
+### Oracle
 
-Description: This command checks if your validator is in the active seat.
+Oracle management.
 
-### help
+```bash
+autonity oracle <subcommand>
+```
 
-Command: `autonity validator help`
+**Subcommands:**
+- `start`: Starts the oracle.
+- `stop`: Stops the oracle.
+- `restart`: Restarts the oracle.
+- `logs`: Displays oracle logs.
+- `update`: Updates the oracle.
+- `help`: Displays help for oracle commands.
 
-Description: This command displays the help menu for the validator commands.
+### CAX
 
-## Wallet Management
+CAX management.
 
-### management
+```bash
+autonity cax <subcommand>
+```
 
-Command: `autonity wallet management`
+**Subcommands:**
+- `menu`: Displays an interactive menu for managing CAX.
+- `help`: Displays help for CAX commands.
 
-Description: This command provides a menu for managing wallets. It presents the following options:
-1. Create Signature registration for game
-2. Create Signature for Validator onboarded
-3. Create transaction
-4. Create wallet
-5. Create backup wallet
 
-You will be prompted to enter your choice, and the corresponding script will be executed based on your selection.
+Displays the main help menu.
 
-### info
+```bash
+autonity help
+```
 
-Command: `autonity wallet info`
-
-Description: This command displays information about the Oracle and Treasury wallets.
-
-### list
-
-Command: `autonity wallet list`
-
-Description: This command lists all the wallets in the Autonity network.
-
-### help
-
-Command: `autonity wallet help`
-
-Description: This command displays the help menu for the wallet commands.
-
-## Node Management
-
-### start
-
-Command: `autonity node start`
-
-Description: This command starts the Autonity node.
-
-### logs
-
-Command: `autonity node logs`
-
-Description: This command displays the logs of the Autonity node.
-
-### epoch
-
-Command: `autonity node epoch`
-
-Description: This command displays the current epoch of the Autonity node.
-
-### sync
-
-Command: `autonity node sync`
-
-Description: This command displays the sync status of the Autonity node.
-
-### stop
-
-Command: `autonity node stop`
-
-Description: This command stops the Autonity node.
-
-### restart
-
-Command: `autonity node restart`
-
-Description: This command restarts the Autonity node.
-
-### update
-
-Command: `autonity node update`
-
-Description: This command updates the Autonity node.
-
-### help
-
-Command: `autonity node help`
-
-Description: This command displays the help menu for the node commands.
-
-## Oracle Management
-
-### start
-
-Command: `autonity oracle start`
-
-Description: This command starts the Oracle server.
-
-### logs
-
-Command: `autonity oracle logs`
-
-Description: This command displays the logs of the Oracle server.
-
-### stop
-
-Command: `autonity oracle stop`
-
-Description: This command stops the Oracle server.
-
-### restart
-
-Command: `autonity oracle restart`
-
-Description: This command restarts the Oracle server.
-
-### update
-
-Command: `autonity oracle update`
-
-Description: This command updates the Oracle server.
-
-### help
-
-Command: `autonity oracle help`
-
-Description: This command displays the help menu for the oracle commands.
-
-## CAX Management
-
-### menu
-
-Command: `autonity cax menu`
-
-Description: This command displays the CAX Management Menu.
-
-### help
-
-Command: `autonity cax help`
-
-Description: This command displays the help menu for the CAX commands.
-
-## Help
-
-Command: `autonity help`
-
-Description: This command displays the help menu for all available commands.
+With this cheat sheet, users can easily understand and use the `autonity` CLI commands for various management needs within the Autonity ecosystem.
