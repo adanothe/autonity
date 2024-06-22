@@ -1,20 +1,20 @@
 #!/bin/bash
 
 source ~/autonity/.env
-HEAD=$(command -v head)
-AUT=$(command -v aut)
-MESSAGE="validator onboarded"
+head=$(command -v head)
+aut=$(command -v aut)
+message="validator onboarded"
 
-AUTONITY_DIR="$HOME/autonity"
-KEYSTORE_DIR="$HOME/.autonity/keystore"
-KEYFILE="$KEYSTORE_DIR/autonitykeys.key"
-PRIVATE_KEY_FILE="$KEYSTORE_DIR/autonitykeys.priv"
-AUTONITY_KEYS_FILE="$KEYSTORE_DIR/autonitykeys.key"
+autonity_dir="$HOME/autonity"
+keystore_dir="$HOME/.autonity/keystore"
+keyfile="$keystore_dir/autonitykeys.key"
+private_key_file="$keystore_dir/autonitykeys.priv"
+autonity_keys_file="$keystore_dir/autonitykeys.key"
 
 import_private_key() {
-    echo "$1" > "$PRIVATE_KEY_FILE"
+    echo "$1" > "$private_key_file"
     expect -c "
-    spawn $AUT account import-private-key $PRIVATE_KEY_FILE
+    spawn $aut account import-private-key $private_key_file
     expect \"Password for new account:\"
     send \"$KEYPASSWORD\r\"
     expect \"Confirm account password:\"
@@ -23,24 +23,24 @@ import_private_key() {
     " > /dev/null 2>&1
 }
 
-if [ -f "$AUTONITY_KEYS_FILE" ]; then
-    SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$AUTONITY_KEYS_FILE" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-    ENODE=$("$AUT" validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+if [ -f "$autonity_keys_file" ]; then
+    signed_message=$("$aut" account sign-message "$message" --keyfile "$autonity_keys_file" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
+    enode=$("$aut" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
     echo "Signature and ENODE for registration of onboarded validator:"
-    echo "Signature: $SIGNED_MESSAGE"
-    echo "ENODE: $ENODE"
+    echo "Signature: $signed_message"
+    echo "ENODE: $enode"
     exit 0
 fi
 
-private_key=$("$HEAD" -c 64 "$AUTONITY_DIR/autonity-chaindata/autonity/autonitykeys")
+private_key=$("$head" -c 64 "$HOME/autonity-chaindata/autonity/autonitykeys")
 echo "Importing private key from autonitykeys file"
 import_private_key "$private_key"
-mv "$KEYSTORE_DIR/UTC-"* "$KEYFILE"
-echo "Successfully imported private key to autonitykeys.key in $KEYFILE"
-chmod 600 "$KEYFILE"
+mv "$keystore_dir/UTC-"* "$keyfile"
+echo "Successfully imported private key to autonitykeys.key in $keyfile"
+chmod 600 "$keyfile"
 
-ENODE=$("$AUT" validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-SIGNED_MESSAGE=$("$AUT" account sign-message "$MESSAGE" --keyfile "$KEYFILE" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
+enode=$("$aut" validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+signed_message=$("$aut" account sign-message "$message" --keyfile "$keyfile" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
 echo "Signature and ENODE for registration of onboarded validator:"
-echo "Signature: $SIGNED_MESSAGE"
-echo "ENODE: $ENODE"
+echo "Signature: $signed_message"
+echo "ENODE: $enode"

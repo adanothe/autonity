@@ -2,23 +2,23 @@
 
 clear
 
-echo "Autonity Validator Registration"
+echo "autonity validator registration"
 echo "-----------------------------------------------"
 
 source ~/autonity/.env
-DOCKER=$(command -v docker)
-ETHKEY=$(command -v ethkey)
-AUT=$(command -v aut)
-ORACLE_KEY_FILE=/root/.autonity/keystore/oracle.key
-TREASURY_KEY_FILE=/root/.autonity/keystore/treasury.key
-PRIVATE_KEY_ORACLE=$($ETHKEY inspect --private "$ORACLE_KEY_FILE" <<< "$KEYPASSWORD" | grep "Private key" | awk '{print $3}')
-TREASURY_ACCOUNT_ADDRESS=$($AUT account info --keyfile "$TREASURY_KEY_FILE" | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
-ENODE=$($AUT node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-CONSENSUS_KEY=$($ETHKEY autinspect ~/autonity-chaindata/autonity/autonitykeys | grep "Consensus Public Key" | awk '{print $4}')
-ORACLE=$($AUT account info --keyfile "$ORACLE_KEY_FILE" | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+docker=$(command -v docker)
+ethkey=$(command -v ethkey)
+aut=$(command -v aut)
+oracle_key_file=$HOME/.autonity/keystore/oracle.key
+treasury_key_file=$HOME/.autonity/keystore/treasury.key
+private_key_oracle=$($ethkey inspect --private "$oracle_key_file" <<<"$KEYPASSWORD" | grep "Private key" | awk '{print $3}')
+treasury_account_address=$($aut account info --keyfile "$treasury_key_file" | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+enode=$($aut node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+consensus_key=$($ethkey autinspect ~/autonity-chaindata/autonity/autonitykeys | grep "Consensus Public Key" | awk '{print $4}')
+oracle=$($aut account info --keyfile "$oracle_key_file" | grep "account" | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 
-echo "Generating ownership proof..."
-PROOF=$($DOCKER run -t -i \
+echo "generating ownership proof..."
+proof=$($docker run -t -i \
     --volume $HOME/autonity-chaindata:/autonity-chaindata \
     --volume $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key \
     --name proof \
@@ -26,24 +26,24 @@ PROOF=$($DOCKER run -t -i \
     ghcr.io/autonity/autonity:latest \
     genOwnershipProof \
     --autonitykeys /autonity-chaindata/autonity/autonitykeys \
-    --oraclekeyhex "$PRIVATE_KEY_ORACLE" \
-    "$TREASURY_ACCOUNT_ADDRESS")
+    --oraclekeyhex "$private_key_oracle" \
+    "$treasury_account_address")
 
-PROOF=$(echo "$PROOF" | tr -cd '[:alnum:]')
+proof=$(echo "$proof" | tr -cd '[:alnum:]')
 export 'KEYFILEPWD'="$KEYPASSWORD"
-TX_HASH=$($AUT validator register "$ENODE" "$ORACLE" "$CONSENSUS_KEY" "$PROOF" | $AUT tx sign - | $AUT tx send -)
-VALIDATOR_IDENTIFIER_ADDRESS=$($AUT validator compute-address "$ENODE" | grep -o '0x[a-zA-Z0-9]*')
+tx_hash=$($aut validator register "$enode" "$oracle" "$consensus_key" "$proof" | $aut tx sign - | $aut tx send -)
+validator_address=$($aut validator info | jq -r '.node_address')
 
-VALIDATOR=$($AUT validator list | grep "$VALIDATOR_IDENTIFIER_ADDRESS")
-if [ "$VALIDATOR" = "$VALIDATOR_IDENTIFIER_ADDRESS" ]; then
-    echo "Validator is registered"
+validator=$($aut validator list | grep "$validator_address")
+if [ "$validator" = "$validator_address" ]; then
+    echo "validator registered"
 else
-    echo "Validator is not registered"
+    echo "validator not registered"
 fi
 
-echo "Transaction hash: https://piccadilly.autonity.org/tx/$TX_HASH"
-echo "Your validator address is: $VALIDATOR_IDENTIFIER_ADDRESS"
-echo "validator= $VALIDATOR_IDENTIFIER_ADDRESS" >> ~/.autrc
+echo "transaction hash: https://piccadilly.autonity.org/tx/$tx_hash"
+echo "your validator address is: $validator_address"
+echo "validator= $validator_address" >>~/.autrc
 echo "to check detail validator, run: autonity validator info"
 
-read -p "Press enter to exit"
+read -p "press enter to exit"
