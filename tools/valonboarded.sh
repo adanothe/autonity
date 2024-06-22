@@ -25,14 +25,14 @@ import_private_key() {
 
 if [ -f "$autonity_keys_file" ]; then
     signed_message=$("$aut" account sign-message "$message" --keyfile "$autonity_keys_file" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-    enode=$("$aut" validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+    enode=$("$aut" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
     echo "Signature and ENODE for registration of onboarded validator:"
     echo "Signature: $signed_message"
     echo "ENODE: $enode"
     exit 0
 fi
 
-private_key=$("$head" -c 64 "$autonity_dir/autonity-chaindata/autonity/autonitykeys")
+private_key=$("$head" -c 64 "$HOME/autonity-chaindata/autonity/autonitykeys")
 echo "Importing private key from autonitykeys file"
 import_private_key "$private_key"
 mv "$keystore_dir/UTC-"* "$keyfile"

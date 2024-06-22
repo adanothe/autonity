@@ -1,9 +1,13 @@
 # Setup Autonity Piccadilly Testnet & Join Autonity Piccadilly Circus Games Competition (PCGC) 
 
+  - Official Docs:      [Autonity Documentation](https://docs.autonity.org/)
+  - autonity github:    [github respostories](https://github.com/autonity/)
+  - Network explorer:   - [piccadilly](https://piccadilly.autonity.org/)
+                        - [bakerloo](https://bakerloo.autonity.org/)
+  - validaor explorer:  - [stakeflow](https://stakeflow.io/autonity-piccadilly)
+                        - [daic.capital](https://autonity.daic.capital/)
 
 ## Node Installation
-
-Official Docs: [Autonity Documentation](https://docs.autonity.org/)
 
 ## Preparing server requirements
 
@@ -23,6 +27,8 @@ curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && 
 chmod +x install.sh && \
 bash install.sh 
 ```
+
+if your Use Existing Validator
 
 _During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the **.env** file._
 
@@ -119,6 +125,7 @@ Below is the list of available subcommands:
   2. Bond & Unbond Validator
   3. Pause & Reactivate Validator
   4. Change Commission Rate
+  5. migrate validator
 - `info`: Displays information about a validator.
 - `list`: Lists all validators.
 - `seat active`: Checks for active seats.
