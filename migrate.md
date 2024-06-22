@@ -32,7 +32,7 @@ Before starting the migration process, make sure you have the following:
     sudo apt-get update && sudo apt-get upgrade -y
     sudo apt install curl git jq expect fail2ban ufw -y
     ```
-    - **input ip of new server and password your key**
+    - **input password your key**
     ```
     curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && \
     chmod +x install.sh && \

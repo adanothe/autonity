@@ -53,7 +53,7 @@ autonity node stop                # Stop node
 autonity node update              # Update node
 ```
 
-## Register for Piccadilly Circus Games Competition
+## Register for Piccadilly Circus Games Competition (If you have already registered for the previous round, you do not need to register for this round again)
 
 To sign-up and take part just [Complete the Registration Form](https://game.autonity.org/getting-started/register.html). Then run this command to get autonity address and signature: choose option 1
 
@@ -61,7 +61,7 @@ To sign-up and take part just [Complete the Registration Form](https://game.auto
 autonity wallet management
 ```
 
-Registered game participants will receive basic ‘get going’ funding of **1 ATN** and **1 NTN** to your participant account on-chain. As part of the game, registered game participants are automatically given an account funded with **1M fake USD** in an off-chain exchange, the _Centralized Auton Exchange (CAX)_. This is your principal source of game funding for on-chain tasks.
+Registered game participants will receive basic ‘get going’ funding of **1 ATN** and **1 NTN** to your participant account on-chain. As part of the game, registered game participants are automatically given an account funded with **1M fake USDC** in an off-chain exchange, the _Centralized Auton Exchange (CAX)_. This is your principal source of game funding for on-chain tasks.
 
 ## Setup Oracle Server
 

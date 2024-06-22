@@ -10,6 +10,7 @@ home_dir="$HOME"
 autonity_dir="$home_dir/autonity"
 autonity_bin="$autonity_dir/bin"
 autonity_tools="$autonity_dir/tools"
+autrc_file="$home_dir/.autrc"
 autonity_keystore="$home_dir/.autonity/keystore"
 keyfile="$autonity_keystore/autonitykeys.key"
 private_key_file="$autonity_keystore/autonitykeys.priv"
@@ -57,6 +58,14 @@ git clone https://github.com/adanothe/autonity.git >/dev/null
 sudo cp "$autonity_bin/ethkey" /usr/bin/ && sudo chmod +x /usr/bin/ethkey
 sudo cp "$autonity_bin/autonity" /usr/bin/ && sudo chmod +x /usr/bin/autonity
 chmod +x "$autonity_tools/"* "$autonity_tools/cax/"*
+
+# Create autrc file if it doesn't exist
+
+    cat <<EOF > "$autrc_file"
+[aut]
+rpc_endpoint= ws://127.0.0.1:8546
+keyfile= ~/.autonity/keystore/autonitykeys.key
+EOF
 
 # Create autonity keystore directory and start autonity node
 mkdir -p "$autonity_keystore"
@@ -107,3 +116,8 @@ echo "Signature,ENODE & rpc url for registration open the door task:"
 echo "Signature: $signed_message"
 echo "ENODE: $enode"
 echo "your rpc url: http://$ip:$rpc_port"
+echo "to check your rpc url, open your browser and type http://$ip:$rpc_port"
+echo "to check node logs & node sync: autonity node logs & autonity node sync"
+
+# End of script
+exit 0
