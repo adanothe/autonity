@@ -88,6 +88,8 @@ rpc_endpoint= ws://127.0.0.1:8546
 keyfile= ~/.autonity/keystore/treasury.key
 EOF
             "$autonity_tools/create-wallet.sh" > /dev/null && echo "Wallet created successfully."
+            echo "Installation completed"
+            sleep 5
             break
             ;;
         "Use Existing Validator")
@@ -99,10 +101,8 @@ EOF
 
             keystoredir="$home_dir/.autonity/keystore"
             mkdir -p "$keystoredir"
-            echo "Please move your wallet backup to $keystoredir with the file name oracle.key and treasury.key."
 
             mkdir -p "$home_dir/autonity-chaindata/autonity"
-            echo "Please move your autonitykeys backup to $home_dir/autonity-chaindata/autonity."
 
             cat <<EOF >"$autrc_file"
 [aut]
@@ -110,13 +110,15 @@ rpc_endpoint= ws://127.0.0.1:8546
 keyfile= ~/.autonity/keystore/treasury.key
 validator= $valaddress
 EOF
+            echo "Installation completed"
+            sleep 5
+            echo "Please move your wallet backup to $keystoredir with the file name oracle.key and treasury.key."
+            echo "Please move your autonitykeys backup to $home_dir/autonity-chaindata/autonity."
             break
             ;;
     esac
 done
 
-echo "Installation completed"
-sleep 5
-echo -e "To start node: \e[1mautonity node start\e[0m"
-echo -e "To check node logs: \e[1mautonity node logs\e[0m"
-echo -e "To check node sync: \e[1mautonity node sync\e[0m"
+echo -e "to start node: \e[1mautonity node start\e[0m"
+echo -e "to check node logs: \e[1mautonity node logs\e[0m"
+echo -e "to check node sync: \e[1mautonity node sync\e[0m"
