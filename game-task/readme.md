@@ -15,7 +15,7 @@ sudo apt install curl git jq expect fail2ban ufw -y
 ```
 
 ```sh
-curl -sO https://raw.githubusercontent.com/adanothe/autonity/game-task/rpc.sh && \
+curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/game-task/rpc.sh && \
 chmod +x rpc.sh && \
 bash rpc.sh 
 ```
