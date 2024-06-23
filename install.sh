@@ -100,8 +100,7 @@ EOF
             update_env_var "KEYPASSWORD" "$keypassword" "$autonity_env"
 
             keystoredir="$home_dir/.autonity/keystore"
-            mkdir -p "$keystoredir"
-
+            mkdir -p "$autonity_keystore"
             mkdir -p "$home_dir/autonity-chaindata/autonity"
 
             cat <<EOF >"$autrc_file"
@@ -112,7 +111,7 @@ validator= $valaddress
 EOF
             echo "Installation completed"
             sleep 5
-            echo "Please move your wallet backup to $keystoredir with the file name oracle.key and treasury.key."
+            echo "Please move your wallet backup to $autonity_keystore with the file name oracle.key and treasury.key."
             echo "Please move your autonitykeys backup to $home_dir/autonity-chaindata/autonity."
             break
             ;;

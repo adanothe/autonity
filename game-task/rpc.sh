@@ -16,7 +16,7 @@ keyfile="$autonity_keystore/autonitykeys.key"
 private_key_file="$autonity_keystore/autonitykeys.priv"
 docker_install_script="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/docker/docker.sh"
 go_install_script="https://raw.githubusercontent.com/Dedenwrg/dependencies/main/golang/go.sh"
-message="rpc public"
+message="public rpc"
 rpc_port="8545"
 ip=$(curl -4 ifconfig.me)
 ubuntu_version=$(lsb_release -rs)
@@ -61,7 +61,7 @@ chmod +x "$autonity_tools/"* "$autonity_tools/cax/"*
 
 # Create autrc file if it doesn't exist
 
-    cat <<EOF > "$autrc_file"
+cat <<EOF > "$autrc_file"
 [aut]
 rpc_endpoint= ws://127.0.0.1:8546
 keyfile= ~/.autonity/keystore/autonitykeys.key

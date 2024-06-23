@@ -34,7 +34,7 @@ Before starting the migration process, ensure you have the following:
     sudo apt install curl git jq expect fail2ban ufw -y
     ```
 
-3.  Input the password for your key & validator address:
+3.  choose "Use Existing Validator", Input the password for your key & validator address:
     ```bash
     curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && \
     chmod +x install.sh && ./install.sh
