@@ -95,10 +95,9 @@ EOF
         "Use Existing Validator")
             read -p "Enter your validator address: " valaddress
             read -sp "Enter your key password: " keypassword
-            ip=$(aut validator info --rpc-endpoint $rpc --validator $valaddress | grep '"enode"' | sed -E 's/.*@([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            read -p "Please enter your validator IP address. You can find it in the previous round's validator task registration email under the enode section: " ip
             update_env_var "YOURIP" "$ip" "$autonity_env"
             update_env_var "KEYPASSWORD" "$keypassword" "$autonity_env"
-
             keystoredir="$home_dir/.autonity/keystore"
             mkdir -p "$autonity_keystore"
             mkdir -p "$home_dir/autonity-chaindata/autonity"
@@ -121,3 +120,4 @@ done
 echo -e "to start node: \e[1mautonity node start\e[0m"
 echo -e "to check node logs: \e[1mautonity node logs\e[0m"
 echo -e "to check node sync: \e[1mautonity node sync\e[0m"
+
