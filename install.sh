@@ -95,7 +95,7 @@ EOF
         "Use Existing Validator")
             read -p "Enter your validator address: " valaddress
             read -sp "Enter your key password: " keypassword
-            ip=$(aut validator info --rpc-endpoint $rpc --validator $valaddress | grep '"enode"' | sed -E 's/.*@([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            read -p "Please enter your validator IP address. You can find it in the previous round's validator task registration email under the enode section: " ip
             update_env_var "YOURIP" "$ip" "$autonity_env"
             update_env_var "KEYPASSWORD" "$keypassword" "$autonity_env"
 
