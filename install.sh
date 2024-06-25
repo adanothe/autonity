@@ -107,7 +107,6 @@ EOF
 [aut]
 rpc_endpoint= ws://127.0.0.1:8546
 keyfile= ~/.autonity/keystore/treasury.key
-validator= $valaddress
 EOF
             echo "Installation completed"
             sleep 5
