@@ -24,5 +24,22 @@ bash rpc.sh
 
 
 ## PnL Challenge
+> Points are earned for levels of transaction activity and trading profit
 
-SOON
+### Bridge mock USDC from Amoy to Piccadilly
+- import your registered account address into your wallet
+  ```sh
+  autonity wallet import
+  ```
+- navigate to the [mock USDC Bridge](https://usdc-frontend-autonity.vercel.app/) Connect your wallet and execute the bridge transfer
+
+### Trading with your mock USDC on Piccadilly
+- [Create cax apikey](https://github.com/adanothe/autonity#using-cax)
+- To trade off-chain in the CAX you will need to deposit your bridged mock USDC to the exchange
+  choose USDC send to Exchange address: `0x11F62c273dD23dbe4D1713C5629fc35713Aa5a94`
+  ```sh
+  autonity wallet import
+  ```
+- 
+
+  
