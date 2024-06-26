@@ -1,6 +1,7 @@
 #!/bin/bash
 
 aut=$(command -v aut)
+token_address="0x3a60C03a86eEAe30501ce1af04a6C04Cf0188700"
 source $HOME/autonity/.env
 
 echo "Autonity wallet Transfer"
@@ -34,7 +35,7 @@ choose_wallet() {
     echo ""
 }
 
-read -p "Choose currency to send (1 for ATN, 2 for NTN): " currency
+read -p "Choose currency to send (1 for ATN, 2 for NTN, 3 for USDC): " currency
 if [ "$currency" != "1" ] && [ "$currency" != "2" ]; then
     echo "Invalid currency selection"
     exit 1
