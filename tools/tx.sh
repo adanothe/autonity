@@ -36,7 +36,7 @@ choose_wallet() {
 }
 
 read -p "Choose currency to send (1 for ATN, 2 for NTN, 3 for USDC): " currency
-if [ "$currency" != "1" ] && [ "$currency" != "2" ]; then
+if [ "$currency" != "1" ] && [ "$currency" != "2" ] && [ "$currency" != "3" ]; then
     echo "Invalid currency selection"
     exit 1
 fi
@@ -45,6 +45,8 @@ if [ "$currency" == "1" ]; then
     currency_name="ATN"
 elif [ "$currency" == "2" ]; then
     currency_name="NTN"
+elif [ "$currency" == "3" ]; then
+    currency_name="USDC"
 fi
 
 read -p "Do you want to choose wallet from the list or enter address manually? (1 for list, 2 for manual): " address_choice
@@ -60,8 +62,10 @@ export 'KEYFILEPWD'="$KEYPASSWORD"
 
 if [ "$currency" == "1" ]; then
     tx_hash=$($aut tx make --to $chosen_address --value $value | $aut tx sign - | $aut tx send -)
-else
+elif [ "$currency" == "2" ]; then
     tx_hash=$($aut tx make --to $chosen_address --value $value --ntn | $aut tx sign - | $aut tx send -)
+elif [ "$currency" == "3" ]; then
+    tx_hash=$($aut token transfer --token $token_address $chosen_address $value | $aut tx sign - | $aut tx send -)
 fi
 
 echo "Transaction hash: https://piccadilly.autonity.org/tx/$tx_hash"
