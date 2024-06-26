@@ -1,28 +1,19 @@
 #!/bin/bash
 
-mkdir -p $HOME/backup
-cp $HOME/autonity/.env $HOME/backup
+backup_dir="$HOME/backup"
+autonity_dir="$HOME/autonity"
+repo_url="https://github.com/adanothe/autonity.git"
+bin_dir="/usr/bin"
 
-echo "APIKEY=" >> $HOME/backup/.env
-echo "PAIR1=ATN-USD" >> $HOME/backup/.env
-echo "PAIR2=NTN-USD" >> $HOME/backup/.env
-echo "DEPOSIT=0x11F62c273dD23dbe4D1713C5629fc35713Aa5a94" >> $HOME/backup/.env
+mkdir -p "$backup_dir"
+cp -f "$autonity_dir/.env" "$backup_dir"
+cp -f "$autonity_dir/docker-compose.yml" "$backup_dir"
+sudo rm -rf "$bin_dir/autonity"
+rm -rf "$autonity_dir"
 
-rm -rf /usr/bin/autonity
-rm -rf autonity
-
-git clone https://github.com/adanothe/autonity.git
-sudo cp $HOME/autonity/bin/autonity /usr/bin/ && sudo chmod +x /usr/bin/autonity
-sudo cp -f $HOME/backup/.env $HOME/autonity
-
-chmod +x $HOME/autonity/tools/*
-chmod +x $HOME/autonity/tools/cax/*
-
-if ! command -v http &> /dev/null; then
-    echo "Installing HTTPie..."
-    curl -SsL https://packages.httpie.io/deb/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/httpie.gpg
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/httpie.gpg] https://packages.httpie.io/deb ./" | sudo tee /etc/apt/sources.list.d/httpie.list > /dev/null
-    sudo apt update
-    sudo apt install httpie -y
-    echo "HTTPie installed successfully."
-fi
+git clone "$repo_url" "$autonity_dir"
+sudo cp "$autonity_dir/bin/autonity" "$bin_dir" && sudo chmod +x "$bin_dir/autonity"
+cp -f "$backup_dir/.env" "$autonity_dir"
+cp -f "$backup_dir/docker-compose.yml" "$autonity_dir"
+chmod +x "$autonity_dir/tools/"*
+chmod +x "$autonity_dir/tools/cax/"*
