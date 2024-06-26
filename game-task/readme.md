@@ -38,7 +38,7 @@ bash rpc.sh
 - To trade off-chain in the CAX you will need to deposit your bridged mock USDC to the exchange
   choose USDC send to Exchange address: `0x11F62c273dD23dbe4D1713C5629fc35713Aa5a94`
   ```sh
-  autonity wallet import
+  autonity wallet tx
   ```
 - 
 
