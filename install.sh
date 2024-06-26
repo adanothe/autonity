@@ -93,7 +93,6 @@ EOF
             break
             ;;
         "Use Existing Validator")
-            read -p "Enter your validator address: " valaddress
             read -sp "Enter your key password: " keypassword
             read -p "Please enter your validator IP address. You can find it in the previous round's validator task registration email under the enode section: " ip
             update_env_var "YOURIP" "$ip" "$autonity_env"

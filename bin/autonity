@@ -105,7 +105,7 @@ elif [[ "$1" == "wallet" ]]; then
 5. Exit
 =====================================
 EOF
-                read -p "Enter your choice (1-6): " choice
+                read -p "Enter your choice (1-5): " choice
 
                 case $choice in
                     1) $TOOLS/signature.sh ;;

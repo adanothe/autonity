@@ -106,9 +106,9 @@ Choose option 1 to register as a validator
 autonity validator setup
 ```
 
-### Register Onboard Validator
+### Register Autonity Stake Delegation Program
 
-Complete the [Register a Validator Form](https://game.autonity.org/awards/register-validator.html). Then run this command to get signature and enode:
+Complete the [Register a Validator Form](https://stake-delegation.pages.dev/#join). Then run this command to get signature and enode:
 
 ```bash
 autonity wallet management

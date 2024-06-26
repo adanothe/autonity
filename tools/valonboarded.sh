@@ -3,7 +3,7 @@
 source ~/autonity/.env
 head=$(command -v head)
 aut=$(command -v aut)
-message="validator onboarded"
+message="Application for the stake delegation program"
 
 autonity_dir="$HOME/autonity"
 keystore_dir="$HOME/.autonity/keystore"
@@ -25,10 +25,10 @@ import_private_key() {
 
 if [ -f "$autonity_keys_file" ]; then
     signed_message=$("$aut" account sign-message "$message" --keyfile "$autonity_keys_file" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-    enode=$("$aut" node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
-    echo "Signature and ENODE for registration of onboarded validator:"
+    validator_address=$("$aut" validator info | jq -r '.node_address')
+    echo "Signature and validator address for registration ASDP:"
     echo "Signature: $signed_message"
-    echo "ENODE: $enode"
+    echo "Validator address: $validator_address"
     exit 0
 fi
 
@@ -39,8 +39,8 @@ mv "$keystore_dir/UTC-"* "$keyfile"
 echo "Successfully imported private key to autonitykeys.key in $keyfile"
 chmod 600 "$keyfile"
 
-enode=$("$aut" validator info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
+validator_address=$("$aut" validator info | jq -r '.node_address')
 signed_message=$("$aut" account sign-message "$message" --keyfile "$keyfile" --password "$KEYPASSWORD" | grep -o '0x[0-9a-fA-F]*')
-echo "Signature and ENODE for registration of onboarded validator:"
+echo "Signature and validator address for registration ASDP:"
 echo "Signature: $signed_message"
-echo "ENODE: $enode"
+echo "Validator address: $validator_address"
