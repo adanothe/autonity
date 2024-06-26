@@ -120,6 +120,7 @@ EOF
             ;;
         info) echo "Wallet Info" && echo "---------------------------------------------------------" && $TOOLS/wallet-info.sh ;;
         tx) echo "Wallet tx" && $TOOLS/tx.sh ;;
+        import) echo "Wallet Import" && $TOOLS/wallet-import.sh ;;
         list) echo "Wallet List" && $AUT account list ;;
         help)
             cat <<EOF
@@ -130,6 +131,7 @@ Available subcommands:
   Info        - Check wallet details
   tx          - create transaction
   list        - List all wallets
+  import      - Import wallet keystore to private key
   help        - Display help menu
 EOF
             ;;

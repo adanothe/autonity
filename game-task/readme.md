@@ -21,3 +21,8 @@ bash rpc.sh
 ```
 
 - registration form [open the door](https://game.autonity.org/awards/register-node.html)
+
+
+## PnL Challenge
+
+SOON
