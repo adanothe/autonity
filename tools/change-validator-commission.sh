@@ -2,7 +2,7 @@
 
 aut=$(command -v aut)
 
-if [ -z "$aut_path" ]; then
+if [ -z "$aut" ]; then
     echo "Error: 'aut' command not found. Make sure it is installed and accessible in your PATH."
     exit 1
 fi
