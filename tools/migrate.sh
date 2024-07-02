@@ -31,7 +31,7 @@ create_backup "$autonity_dir" "$autonity_backup_filename"
 create_backup "$autonity_keys_file" "$keys_backup_filename"
 
 # Pause validator
-export keyfilepwd="$KEYPASSWORD"
+export KEYFILEPWD="$KEYPASSWORD"
 $aut validator pause --validator "$node_address" | $aut tx sign - | $aut tx send - >/dev/null 2>&1
 
 # Change IP
@@ -39,7 +39,7 @@ read -p "Enter new IP: " new_ip
 new_enode=$(echo "$enode" | sed -E "s/@[0-9.]+:/@$new_ip:/")
 
 # Update enode
-export keyfilepwd="$KEYPASSWORD"
+export KEYFILEPWD="$KEYPASSWORD"
 $aut contract tx --abi "$autonity_abi" --address "$contract_address" updateEnode "$node_address" "$new_enode" >/dev/null 2>&1
 
 # Indicate completion
