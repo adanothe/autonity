@@ -25,7 +25,8 @@ Before starting the migration process, ensure you have the following:
 #### Set Up the New Server
 1.  Extract all backup data:
     ```bash
-    tar -xvzf backup-keystore_*_*-*-*-*.tar.gz -C ~ && tar -xvzf backup-autonitykeys_*_*-*-*-*.tar.gz -C ~
+    tar -xvzf backup-keystore_*.tar.gz -C ~
+    tar -xvzf backup-autonitykeys_*.tar.gz -C ~
     ```
 
 2.  Install server prerequisites and tools:
@@ -44,13 +45,18 @@ Before starting the migration process, ensure you have the following:
     ```bash
     autonity node start && autonity oracle start
     ```
+    add validator address to .autrc
+     ```
+     VALADD=yourvalidatoraddress
+     echo "validator= $VALADD" >> ~/.autrc
+     ```
 
-5.  After your node is synced, reactivate the validator. To check if your node is synced, run:
+6.  After your node is synced, reactivate the validator. To check if your node is synced, run:
     ```bash
     autonity node sync
     ```
 
-6.  Reactivate the validator by choosing option 3:
+7.  Reactivate the validator by choosing option 3:
     ```bash
     autonity validator setup
     ```
