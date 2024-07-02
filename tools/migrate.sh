@@ -40,7 +40,7 @@ new_enode=$(echo "$enode" | sed -E "s/@[0-9.]+:/@$new_ip:/")
 
 # Update enode
 export KEYFILEPWD="$KEYPASSWORD"
-$aut contract tx --abi "$autonity_abi" --address "$contract_address" updateEnode "$node_address" "$new_enode" >/dev/null 2>&1
+$aut contract tx --abi "$autonity_abi" --address "$contract_address" updateEnode "$node_address" "$new_enode" | $aut tx sign - | $aut tx send - >/dev/null 2>&1
 
 # Indicate completion
 echo "Validator paused and enode updated successfully."
