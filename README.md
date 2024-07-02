@@ -57,7 +57,7 @@ autonity node update              # Update node
 ```
 
 ## Register for Piccadilly Circus Games Competition
-To sign up and take part, just [Complete the Registration Form](https://game.autonity.org/getting-started/register.html). Then run this command to get autonity address and signature: choose option 1
+To sign up and take part, just [Registration account](https://game.autonity.org/getting-started/register.html) & [Registration address](https://game.autonity.org/getting-started/register-wallet.html) Then run this command to get autonity address and signature: choose option 1
 ```bash
 autonity wallet management
 ```
