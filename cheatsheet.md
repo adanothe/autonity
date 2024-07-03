@@ -46,6 +46,7 @@ autonity wallet <subcommand>
 - `info`: Displays wallet information.
 - `tx`: Creates wallet transactions.
 - `list`: Lists all wallets.
+- `import`: Import wallet keystore to private key.
 - `help`: Displays help for wallet commands.
 
 ### Node
