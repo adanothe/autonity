@@ -22,28 +22,13 @@ For detailed hardware requirements for running Autonity Go Client and Autonity O
 
 ```shell
 sudo apt-get update && sudo apt-get upgrade -y
-sudo apt install curl git jq expect fail2ban ufw -y
+sudo apt install curl git jq expect ufw -y
 ```
 
 ```sh
-curl -sO https://raw.githubusercontent.com/adanothe/autonity/main/install.sh && \
-chmod +x install.sh && \
-bash install.sh 
-```
-> **Note:**
-> If you have already created a validator in a previous round, you can choose "Use Existing Validator" during installation.
-> After installation, you must move the backup data of the validator, specifically `oracle.key` and `treasury.key` to the directory `$HOME/.autonity/keystore` and `autonitykeys` to the directory `$HOME/autonity-chaindata/autonity`.
 
-> **Important:**
-> During installation, you will be asked to set a password for the key wallet. The password will be used to unlock the wallet and sign the transaction. The password you create will be saved in the **.env** file.
-> Wallets are automatically created during installation, and keystores are saved in `$HOME/.autonity/keystore` **`PLEASE BACKUP`**.
->
-> There are 3 wallets that were created:
-> - `treasury.key`: serves as our treasury and is used by validators for various purposes, including sending transactions, managing validator lifecycle, and receiving staking rewards. It is also utilized for registration in the Piccadilly Circus Games Competition (PCGC).
-> - `oracle.key`: functions as the cryptographic identifier for the Oracle server. It is employed to sign price report transactions sent to the on-chain Oracle Contract, with its address serving as a unique identifier for the Oracle server. To prevent transaction failures due to insufficient gas, it is essential to pre-fund your Oracle.key account before initiating transactions for online price report data. Be sure to keep your Oracle wallet sufficiently funded!
-> - `autonitykeys`: On starting, by default AGC will automatically generate an `autonitykeys` file containing your node key and consensus key within the `autonity` subfolder of the `--datadir` specified when running the node. These are located in the directory `$HOME/autonity-chaindata/autonity/` and play a crucial role in forming validator addresses and enodes. Additionally, they include the private key for gossip transactions among network nodes and the consensus key for participating in consensus as a validator.
->
-> To backup all wallets, run the command `autonity wallet management` and choose option 4.
+```
+
 
 ## Running Node
 

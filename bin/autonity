@@ -2,13 +2,9 @@
 
 AUT=$(command -v aut)
 AUTONITY=$(command -v autonity)
-VALIDATORADDRESS=$(grep validator= "$HOME/.autrc" | cut -d'=' -f2 | tr -d ' ')
-KEFILE1="$HOME/.autonity/keystore/oracle.key"
-KEFILE2="$HOME/.autonity/keystore/treasury.key"
 TOOLS="$HOME/autonity/tools"
-CAX="$HOME/autonity/tools/cax"
 DOCKER_COMPOSE="$HOME/autonity/docker-compose.yml"
-
+VALIDATORADDRESS=$(grep validator= "$HOME/.autrc" | cut -d'=' -f2 | tr -d ' ')
 
 display_help() {
     cat <<EOF
@@ -19,64 +15,57 @@ Available commands:
   wallet      - Wallet management
   node        - Node management
   oracle      - Oracle server management
-  cax         - CAX management
   help        - Display help menu
 EOF
     exit 0
 }
-
 
 if [[ $# -eq 0 ]]; then
     display_help
     exit 1
 fi
 
-
-if [[ "$1" == "validator" ]]; then
-    case "$2" in
-        setup)
-            while true; do
-                clear
-                cat <<EOF
+case "$1" in
+    validator)
+        case "$2" in
+            setup)
+                while true; do
+                    clear
+                    cat <<EOF
 ===== Validator Management Menu =====
 1. Create Validator
 2. Bond & Unbond Validator
 3. Pause & Reactivate Validator
 4. Change Commission Rate
-5. migrate Validator
-6. Exit
+0. Exit
 ======================================
 EOF
-                read -p "Enter your choice (1-5): " choice
-
-                case $choice in
-                    1) $TOOLS/create-validator.sh ;;
-                    2) $TOOLS/bond-unbond-validator.sh ;;
-                    3) $TOOLS/pause-reactivate-validator.sh ;;
-                    4) $TOOLS/change-validator-commission.sh ;;
-                    5) $TOOLS/migrate.sh ;;
-                    6) echo "Exiting..." && exit 0 ;;
-                    *) echo "Invalid choice. Please enter a number between 1 and 5." ;;
-                esac
-                read -p "Press Enter to continue..."
-            done
-            ;;
-        info) echo "Validator Info" && $TOOLS/validatorinfo.sh ;;
-        list) echo "Validator List" && $AUT validator list | awk '{print NR".",$0}' ;;
-        seat)
-            if [[ "$3" == "active" ]]; then
-                echo "Seat Active Validators List"
-                $TOOLS/committe.sh
-            else
-                echo "Invalid subcommand. Please use 'active' with 'seat'."
-            fi
-            ;;
-        committe)
-            echo "Check your validator in the Seat Active"
-            $AUT protocol get-committee | grep "$VALIDATORADDRESS" > /dev/null && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
-            ;;
-        help)
-            cat <<EOF
+                    read -p "Enter your choice (1-4): " choice
+                    case $choice in
+                        1) $TOOLS/create-validator.sh ;;
+                        2) $TOOLS/bond-unbond-validator.sh ;;
+                        3) $TOOLS/pause-reactivate-validator.sh ;;
+                        4) $TOOLS/change-validator-commission.sh ;;
+                        0) echo "Exiting..." && exit 0 ;;
+                        *) echo "Invalid choice. Please enter a number between 1 and 4." ;;
+                    esac
+                    read -p "Press Enter to continue..."
+                done
+                ;;
+            info) $TOOLS/validatorinfo.sh ;;
+            list) $AUT validator list | awk '{print NR".",$0}' ;;
+            seat)
+                if [[ "$3" == "active" ]]; then
+                    $TOOLS/committe.sh
+                else
+                    echo "Invalid subcommand. Use 'active' with 'seat'."
+                fi
+                ;;
+            committe)
+                $AUT protocol committee | grep -i "$VALIDATORADDRESS" > /dev/null && echo "Your validator is in the committee" || echo "Your validator is not in the committee"
+                ;;
+            help)
+                cat <<EOF
 Usage: autonity validator <subcommand>
 
 Available subcommands:
@@ -87,78 +76,33 @@ Available subcommands:
   committe    - Check if your validator is in the active seats
   help        - Display help menu
 EOF
-            ;;
-        *) $AUTONITY validator help ;;
-    esac
-
-elif [[ "$1" == "wallet" ]]; then
-    case "$2" in
-        management)
-            while true; do
-                clear
+                ;;
+            *) $AUTONITY validator help ;;
+        esac
+        ;;
+    wallet)
+        $TOOLS/wallet.sh
+        ;;
+    node)
+        case "$2" in
+            start) docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
+            logs) docker logs -f --tail=20 autonity ;;
+            sync)
+                $AUT node info | jq -r '
+                    if .eth_syncing == false then
+                        "Node is already synced"
+                    elif .eth_syncing | has("currentBlock") then
+                        "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
+                    else
+                        "Sync information is not available"
+                    end
+                '
+                ;;
+            update) docker compose -f "$DOCKER_COMPOSE" pull autonity && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
+            stop) docker stop autonity ;;
+            restart) docker restart autonity ;;
+            help)
                 cat <<EOF
-===== Wallet Management Menu =====
-1. Create Signature registration for game
-2. Create Signature for Validator onboarded
-3. Create wallet
-4. Create backup wallet
-5. Exit
-=====================================
-EOF
-                read -p "Enter your choice (1-5): " choice
-
-                case $choice in
-                    1) $TOOLS/signature.sh ;;
-                    2) $TOOLS/valonboarded.sh ;;
-                    3) $TOOLS/create-other-wallet.sh ;;
-                    4) $TOOLS/backup-wallet.sh ;;
-                    5) echo "Exiting..." && exit 0 ;;
-                    *) echo "Invalid choice. Please enter a number between 1 and 6." ;;
-                esac
-                read -p "Press Enter to continue..."
-            done
-            ;;
-        info) echo "Wallet Info" && echo "---------------------------------------------------------" && $TOOLS/wallet-info.sh ;;
-        tx) echo "Wallet tx" && $TOOLS/tx.sh ;;
-        import) echo "Wallet Import" && $TOOLS/wallet-import.sh ;;
-        list) echo "Wallet List" && $AUT account list ;;
-        help)
-            cat <<EOF
-Usage: autonity wallet <subcommand>
-
-Available subcommands:
-  management  - Wallet management
-  Info        - Check wallet details
-  tx          - create transaction
-  list        - List all wallets
-  import      - Import wallet keystore to private key
-  help        - Display help menu
-EOF
-            ;;
-        *) $AUTONITY wallet help ;;
-    esac
-
-elif [[ "$1" == "node" ]]; then
-    case "$2" in
-        start) echo "Start Node" && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
-        logs) echo "Node Logs" && docker logs -f --tail=20 autonity ;;
-        epoch) echo "Node Epoch" && $TOOLS/epoch.sh ;;
-        sync)
-            echo "Node Sync" && $AUT node info | jq -r '
-                if .eth_syncing == false then
-                    "Node is already synced"
-                elif .eth_syncing | has("currentBlock") then
-                    "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
-                else
-                    "Sync information is not available"
-                end
-            '
-            ;;
-        update) echo "Node Update" && docker compose -f "$DOCKER_COMPOSE" pull autonity && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
-        stop) echo "Stop Node" && docker stop autonity ;;
-        restart) echo "Restart Node" && docker restart autonity ;;
-        help)
-            cat <<EOF
 Usage: autonity node <subcommand>
 
 Available subcommands:
@@ -166,24 +110,23 @@ Available subcommands:
   stop    - Stop node
   restart - Restart node
   logs    - Display node logs
-  epoch   - Display epoch
   sync    - Display sync status
   update  - Update node
   help    - Display help menu
 EOF
-            ;;
-        *) $AUTONITY node help ;;
-    esac
-
-elif [[ "$1" == "oracle" ]]; then
-    case "$2" in
-        start) echo "Start Oracle" && docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
-        logs) echo "Oracle Logs" && docker logs -f --tail=20 oracle ;;
-        stop) echo "Stop Oracle" && docker stop oracle ;;
-        restart) echo "Restart Oracle" && docker restart oracle ;;
-        update) echo "Oracle Update" && docker compose -f "$DOCKER_COMPOSE" pull oracle && docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
-        help)
-            cat <<EOF
+                ;;
+            *) $AUTONITY node help ;;
+        esac
+        ;;
+    oracle)
+        case "$2" in
+            start) docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
+            logs) docker logs -f --tail=20 oracle ;;
+            stop) docker stop oracle ;;
+            restart) docker restart oracle ;;
+            update) docker compose -f "$DOCKER_COMPOSE" pull oracle && docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
+            help)
+                cat <<EOF
 Usage: autonity oracle <subcommand>
 
 Available subcommands:
@@ -194,56 +137,12 @@ Available subcommands:
   update  - Update oracle
   help    - Display help menu
 EOF
-            ;;
-        *) $AUTONITY oracle help ;;
-    esac
-
-elif [[ "$1" == "cax" ]]; then
-    case "$2" in
-        menu)
-            while true; do
-                clear
-                cat <<EOF
-===== CAX Management Menu =====
-1. Create Api Key
-2. Check Balance
-3. Place Order
-4. Cancel Order
-5. Withdraw
-6. Exit
-=====================================
-EOF
-                read -p "Enter your choice (1-6): " choice
-
-                case $choice in
-                    1) $CAX/generate-api.sh ;;
-                    2) $CAX/check-balance.sh ;;
-                    3) $CAX/order.sh ;;
-                    4) $CAX/cancel-order.sh ;;
-                    5) $CAX/withdraw.sh ;;
-                    6) echo "Exiting..." && exit 0 ;;
-                    *) echo "Invalid choice. Please enter a number between 1 and 6." ;;
-                esac
-                read -p "Press Enter to continue..."
-            done
-            ;;
-        help)
-            cat <<EOF
-Usage: autonity cax <subcommand>
-
-Available subcommands:
-  menu  - CAX Management Menu
-  help  - Display help menu
-EOF
-            ;;
-        *) $AUTONITY cax help ;;
-    esac
-
-elif [[ "$1" == "help" ]]; then
-    display_help
-else
-    echo "Invalid command"
-    display_help
-fi
+                ;;
+            *) $AUTONITY oracle help ;;
+        esac
+        ;;
+    help) display_help ;;
+    *) echo "Invalid command"; display_help ;;
+esac
 
 exit 0
