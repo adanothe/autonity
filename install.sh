@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Define directories and file paths as variables for better readability
-AUTONITY_HOME="$HOME/.autonity"
-KESTORE_DIR="$AUTONITY_HOME/keystore"
-ORACLE_DIR="$AUTONITY_HOME/oracle"
+AUTONITY_HOME="$HOME/autonity"
+KEY_HOME="$HOME/.autonity"
+KESTORE_DIR="$KEY_HOME/keystore"
+ORACLE_DIR="$KEY_HOME/oracle"
 TOOLS_DIR="$AUTONITY_HOME/tools"
 SCRIPTS_DIR="$AUTONITY_HOME/scripts"
 BIN_DIR="$AUTONITY_HOME/bin"
 ENV_FILE="$AUTONITY_HOME/.env"
-AUTRC_FILE="$AUTONITY_HOME/.autrc"
+AUTRC_FILE="$HOME/.autrc"
 PLUGINS_CONF="$AUTONITY_HOME/plugin/plugins-conf.yml"
 
 echo "Enter password:"
@@ -41,7 +42,5 @@ cp "$BIN_DIR/ethkey" /usr/bin/
 cp "$BIN_DIR/autonity" /usr/bin/
 
 cp "$PLUGINS_CONF" "$ORACLE_DIR"
-chmod +x "$AUTONITY_HOME/keystore"/*
-chmod +x "$AUTONITY_HOME/oracle"/*
 
 exit 0
