@@ -1,16 +1,13 @@
 #!/bin/bash
 
-# AUT path
-AUT=$(which aut)
-
 # Execute aut protocol get-committee and format the output using awk
-$AUT protocol get-committee | awk -F '[:,]' '
+aut protocol committee | awk -F '[:,]' '
     BEGIN { 
         print "---------------------------------------------------------------------------"
         printf "| %-5s | %-40s | %-15s |\n", "No.", "Validator address", "Voting Power (NTN)" 
         print "---------------------------------------------------------------------------" 
     }
-    /address/ { 
+    /addr/ { 
         sub(/^ *" */, "", $2); 
         gsub(/"/, "", $2); 
         printf "| %-5d | %-40s | ", ++count, $2 

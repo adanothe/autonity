@@ -1,45 +1,60 @@
 #!/bin/bash
 
 display_error() {
-    echo "Error: $1"
+    echo "Error: $1" >&2
     exit 1
 }
 
 load_env_variables() {
-    local repo_dir="autonity"
-    local parent_dir="$HOME/$repo_dir"
-    local env_file="$parent_dir/.env"
+    local env_file="$HOME/autonity/.env"
 
     if [ -f "$env_file" ]; then
         source "$env_file"
     else
-        display_error "File .env not found in the parent directory."
+        display_error "File .env not found in $HOME/autonity."
     fi
 }
 
 check_aut_command() {
-    local aut_command=$(which aut)
-    if [ -z "$aut_command" ]; then
+    if ! command -v aut &>/dev/null; then
         display_error "'aut' command not found."
     fi
 }
 
 sign_message() {
-    local message="I have read and agree to comply with the Piccadilly Circus Games Competition Terms and Conditions published on IPFS with CID QmVghJVoWkFPtMBUcCiqs7Utydgkfe19wkLunhS5t57yEu"
-    local keyfile="/root/.autonity/keystore/treasury.key"
+    local message="$1"
+    local keyfile="$HOME/.autonity/keystore/treasury.key"
     local password="$KEYPASSWORD"
+
+    if [ -z "$message" ]; then
+        display_error "Message cannot be empty."
+    fi
 
     if [ -z "$password" ]; then
         display_error "Password not found in .env file."
     fi
 
-    local signed_message=$(aut account sign-message "$message" --keyfile "$keyfile" --password "$password" | grep -o '0x[0-9a-fA-F]*')
-    echo "$signed_message"
+    local signature
+    signature=$(aut account sign-message "$message" --keyfile "$keyfile" --password "$password" 2>/dev/null)
+    if [ -z "$signature" ]; then
+        display_error "Failed to generate signature."
+    fi
+
+    echo "$signature"
 }
 
 get_autonity_address() {
-    local keyfile="/root/.autonity/keystore/treasury.key"
-    local autonity_address=$(aut account info --keyfile "$keyfile" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
+    local keyfile="$HOME/.autonity/keystore/treasury.key"
+
+    local autonity_info
+    autonity_info=$(aut account info --keyfile "$keyfile" 2>/dev/null)
+
+    local autonity_address
+    autonity_address=$(echo "$autonity_info" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
+    if [ -z "$autonity_address" ]; then
+        display_error "Failed to retrieve Autonity address."
+    fi
+
     echo "$autonity_address"
 }
 
@@ -47,15 +62,14 @@ main() {
     load_env_variables
     check_aut_command
 
-    echo "SIGNATURE:"
-    signed_message=$(sign_message)
-    echo "$signed_message"
+    echo -n "Enter the message to sign: "
+    read -r message
 
-    echo "AUTONITY ADDRESS:"
-    autonity_address=$(get_autonity_address)
-    echo "$autonity_address"
+    echo -n "signature hash: "
+    sign_message "$message"
 
-    echo "Registration Link: https://game.autonity.org/getting-started/register.html"
+    echo -n "sign with address: "
+    get_autonity_address
 }
 
 main
