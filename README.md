@@ -26,7 +26,10 @@ sudo apt install curl git jq expect ufw -y
 ```
 
 ```sh
-
+git clone https://github.com/adanothe/autonity.git
+cd autonity
+chmod +x install.sh
+sudo install.sh
 ```
 
 
