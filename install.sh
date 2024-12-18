@@ -10,7 +10,7 @@ SCRIPTS_DIR="$AUTONITY_HOME/scripts"
 BIN_DIR="$AUTONITY_HOME/bin"
 ENV_FILE="$AUTONITY_HOME/.env"
 AUTRC_FILE="$HOME/.autrc"
-PLUGINS_CONF="$AUTONITY_HOME/plugin/plugins-conf.yml"
+PLUGINS_CONF="$AUTONITY_HOME/plugins/plugins-conf.yml"
 
 echo "Enter password:"
 read -s PASSWORD
