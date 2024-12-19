@@ -1,46 +1,49 @@
 #!/bin/bash
 
-# Define directories and file paths as variables for better readability
-AUTONITY_HOME="$HOME/autonity"
-KEY_HOME="$HOME/.autonity"
-KESTORE_DIR="$KEY_HOME/keystore"
-ORACLE_DIR="$KEY_HOME/oracle"
-TOOLS_DIR="$AUTONITY_HOME/tools"
-SCRIPTS_DIR="$AUTONITY_HOME/scripts"
-BIN_DIR="$AUTONITY_HOME/bin"
-ENV_FILE="$AUTONITY_HOME/.env"
-AUTRC_FILE="$HOME/.autrc"
-PLUGINS_CONF="$AUTONITY_HOME/plugin/plugins-conf.yml"
+# Define directories and file paths 
+autonity_home="$HOME/autonity"
+key_home="$HOME/.autonity"
+keystore_dir="$key_home/keystore"
+oracle_dir="$key_home/oracle"
+tools_dir="$autonity_home/tools"
+scripts_dir="$autonity_home/scripts"
+bin_dir="$autonity_home/bin"
+env_file="$autonity_home/.env"
+autrc_file="$HOME/.autrc"
+plugins_conf="$autonity_home/plugin/plugins-conf.yml"
 
-echo "Enter password:"
-read -s PASSWORD
+# Prompt for password
+echo "Enter password for wallet:"
+read -s password
 
-YOUR_IP=$(curl -4 ifconfig.me)
+# Fetch the IP address of the system
+your_ip=$(curl -4 ifconfig.me)
 
-cat <<EOF > "$ENV_FILE"
-KEYPASSWORD=$PASSWORD
-YOURIP=$YOUR_IP
+# Create the .env file with required variables
+cat <<EOF > "$env_file"
+KEYPASSWORD=$password
+YOURIP=$your_ip
 EOF
 
-mkdir -p "$KESTORE_DIR"
-mkdir -p "$ORACLE_DIR"
+# Create necessary directories
+mkdir -p "$keystore_dir" "$oracle_dir"
 
-cat <<EOF > "$AUTRC_FILE"
+# Create the autrc file with RPC and keyfile configuration
+cat <<EOF > "$autrc_file"
 [aut]
 rpc_endpoint=ws://127.0.0.1:8546
 keyfile=~/.autonity/keystore/treasury.key
 EOF
 
-chmod +x "$TOOLS_DIR"/*
-chmod +x "$SCRIPTS_DIR"/*
-chmod +x "$BIN_DIR"/*
+# Ensure executables in the tools, scripts, and bin directories are executable
+chmod +x "$tools_dir"/* "$scripts_dir"/* "$bin_dir"/*
 
-"$SCRIPTS_DIR/docker.sh"
-"$SCRIPTS_DIR/aut.sh"
+# Execute the provided shell scripts
+"$scripts_dir/docker.sh"
+"$scripts_dir/aut.sh"
 
-cp "$BIN_DIR/ethkey" /usr/bin/
-cp "$BIN_DIR/autonity" /usr/bin/
-
-cp "$PLUGINS_CONF" "$ORACLE_DIR"
+# Copy binaries and plugins to the appropriate locations
+cp "$bin_dir/"* /usr/bin/
+cp "$plugins_conf" "$oracle_dir"
 
 exit 0
