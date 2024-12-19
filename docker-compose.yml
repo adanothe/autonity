@@ -29,7 +29,7 @@ services:
       - YOURIP=${YOURIP}
 
   oracle:
-    image: hcr.io/autonity/autonity-oracle:latest
+    image: ghcr.io/autonity/autonity-oracle:latest
     container_name: oracle
     command: >
       -tip="1"
