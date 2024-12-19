@@ -35,6 +35,7 @@ while true; do
 5. create signature message
 6. create signature message for validator
 7. backup wallet
+8. create transaction
 0. Exit
 =====================================
 EOF
@@ -158,6 +159,10 @@ EOF
 
         7)
             bash "$TOOLS/backup-wallet.sh"
+            ;;
+
+        8)
+            bash "$TOOLS/tx.sh"
             ;;
 
         0)

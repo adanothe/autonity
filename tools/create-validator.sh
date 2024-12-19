@@ -23,10 +23,10 @@ export KEYFILEPWD="$KEYPASSWORD"
 AUTONITY_KEYS="$HOME/autonity-chaindata/autonity/autonitykeys"
 TREASURY_KEY="$HOME/.autonity/keystore/treasury.key"
 ORACLE_KEY="$HOME/.autonity/keystore/oracle.key"
-TREASURY_ACCOUNT_ADDRESS=$(aut account info --keyfile "$TREASURY_KEY" | awk -F'"' '/account/ {print $2}')
+TREASURY_ACCOUNT_ADDRESS=$(aut account info --keyfile "$TREASURY_KEY" | jq -r '.[0].account')
 ENODE=$(aut node info | grep -o 'enode://[a-zA-Z0-9@.]*:[0-9]*')
 CONSENSUS_KEY=$(ethkey autinspect "$AUTONITY_KEYS" | awk '/Consensus Public Key/ {print $4}')
-ORACLE_ADDRESS=$(aut account info --keyfile "$ORACLE_KEY" | awk -F'"' '/account/ {print $2}')
+ORACLE_ADDRESS=$(aut account info --keyfile "$ORACLE_KEY" | jq -r '.[0].account')
 
 echo "Generating ownership proof..."
 PROOF=$(docker run -t -i \
