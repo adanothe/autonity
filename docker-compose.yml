@@ -1,0 +1,54 @@
+services:
+  autonity:
+    image: ghcr.io/autonity/autonity:latest
+    container_name: autonity
+    command: >
+      --datadir /autonity-chaindata
+      --piccadilly
+      --syncmode full 
+      --http
+      --http.addr 0.0.0.0
+      --http.api aut,eth,net,txpool,web3,admin
+      --http.vhosts *
+      --ws
+      --ws.addr 0.0.0.0
+      --ws.api aut,eth,net,txpool,web3,admin
+      --nat extip:${YOURIP}
+    volumes:
+      - $HOME/autonity-chaindata:/autonity-chaindata
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "6060:6060"
+    stdin_open: true
+    tty: true
+    stop_grace_period: 180s
+    environment:
+      - YOURIP=${YOURIP}
+
+  oracle:
+    image: ghcr.io/autonity/autonity-oracle:latest
+    container_name: oracle
+    command: >
+      -tip="1"
+      -key.file="/autoracle/oracle.key"
+      -key.password=${KEYPASSWORD}
+      -ws="ws://autonity:8546"
+      -plugin.dir="/usr/local/bin/plugins/"
+      -plugin.conf="/autoracle/plugins-conf.yml"
+    volumes:
+      - $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key
+      - $HOME/.autonity/oracle/plugins-conf.yml:/autoracle/plugins-conf.yml
+    stdin_open: true
+    tty: true
+    stop_grace_period: 180s
+    depends_on:
+      - autonity
+    environment:
+      - KEYPASSWORD=${KEYPASSWORD}
+
+networks:
+  autonity_network:
+    driver: bridge

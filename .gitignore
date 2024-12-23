@@ -1,0 +1,17 @@
+.env
+
+# Devenv
+tiber-task/.devenv*
+tiber-task/devenv.local.nix
+
+# direnv
+tiber-task/.direnv
+
+# Ruff
+tiber-task/.ruff_cache
+
+# pre-commit
+tiber-task/.pre-commit-config.yaml
+
+# Ignore all __pycache__ in tiber-task and its subfolders
+tiber-task/**/__pycache__/
