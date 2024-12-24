@@ -31,9 +31,9 @@ while true; do
 1. Create new wallet
 2. Import wallet using private key
 3. Export private key from existing wallet
-4. wallet list
+4. wallet info
 5. create signature message
-6. create signature message for validator
+6. create signature message with validator key
 7. backup wallet
 8. create transaction
 0. Exit
@@ -137,11 +137,9 @@ EOF
                 exit 1
             fi
 
-            echo "Private key for $(basename "$chosen_keyfile"): $private_key"
-
             private_key_file="$keystore_dir/$(basename "$chosen_keyfile" .key).priv"
             echo "$private_key" >"$private_key_file"
-            echo "your private key is: $private_key"
+            echo "your private key: $private_key"
             echo "Private key saved to $private_key_file"
             ;;
 

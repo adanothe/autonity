@@ -1,22 +1,5 @@
 # Autonity Piccadilly Testnet Setup
 
-### Registration
-
-To enter the Tiber Challenge, complete the registration form at [Tiber Challenge Registration](http://tiber.autonity.org/). After registering, your participant's Registered Address will be funded with the following:
-
-| Asset                                   | Amount           |
-|-----------------------------------------|------------------|
-| ATN on Piccadilly                       | 1                |
-| NTN on Piccadilly                       | 0                |
-| Test USDCx on Piccadilly                | 1000             |
-| Test USDC on Polygon Amoy Testnet       | 25               |
-| Test POL on Polygon Amoy Testnet       | 0.01             |
-
-For more details about the challenge, please visit the [Tiber Repository](https://github.com/autonity/tiber-challenge).
-
-### Terms and Conditions
-The challenge's terms and conditions can be found [here](https://gateway.pinata.cloud/ipfs/Qmcdza1BscJFAr2ubkJ2WEksqG8e3gc3XAVpwR83xNY39g).
-
 ## Resources
 
 - **Official Documentation**: [Autonity Documentation](https://docs.autonity.org/)
@@ -29,6 +12,7 @@ The challenge's terms and conditions can be found [here](https://gateway.pinata.
   - [autland](https://autland.io/)
   - [Daic.capital](https://autonity.daic.capital/)
 - **RPC List**: [Chainlist](https://chainlist.org/?testnets=true&search=piccadilly)
+- **Tiber task Repositories**: [tiber-task](https://github.com/autonity/tiber-challenge)
 
 ---
 
@@ -49,7 +33,7 @@ sudo apt-get update && sudo apt-get upgrade -y
 sudo apt install curl git jq expect ufw -y
 ```
 
-Clone the Autonity repository and install:
+Clone this repository and install:
 
 ```bash
 git clone https://github.com/adanothe/autonity.git
@@ -58,26 +42,37 @@ chmod +x install.sh
 bash install.sh
 ```
 
-- During installation, provide the password for the wallet.
+- During installation, provide the password for wallet.
 
 ### 3. Create Wallet
 
-Create wallets for the validator:
-
+To create a wallet, run the command:
 ```bash
 autonity wallet
 ```
+- Select **"Create Wallet"** and create two wallets named `oracle` and `treasury`.
+- Wallets will be saved in the directory `$HOME/.autonity/keystore`.
+- Export the private key the `oracle` wallet by choosing **"Export private key from existing wallet"** and selecting `oracle.key`. This key is used for validator registration.
 
-1. Choose **"Create Wallet"** and create wallets named `oracle` and `treasury`.
-2. Export the private key for the `oracle` wallet:
-   - Select **"Export Private Key"** and save the file as `oracle.key`.
-3. Note:
-   - **`treasury.key`**: Used for transactions, validator lifecycle, and staking rewards.
-   - **`oracle.key`**: Used to sign price report transactions sent to the Oracle Contract. Ensure it is funded to avoid gas issues.
+Note:
+- **`treasury.key`**: Used for transactions, validator lifecycle, and staking rewards.
+- **`oracle.key`**: Used to sign price report transactions sent to the Oracle Contract. Make sure it's funded to avoid gas issues.
+
+If migrating validators from old server, skip the steps above, Simply move the backups of `treasury.key` and `oracle.key` to `$HOME/.autonity/keystore` and `autonitykeys` to `$HOME/autonity-cahindata/autonity`.
+
+When running `autonity wallet` command you will be presented with the following options:
+1. **Create new wallet**
+2. **Import wallet using private key**
+3. **Export private key from existing wallet**
+4. **wallet infor**
+5. **create signature message**
+6. **create signature message with validator key**
+7. **Backup wallet**
+8. **create transaction**
 
 ---
 
-## Running the Node
+## Running Node
 
 To manage your node, use the following commands:
 
@@ -104,7 +99,7 @@ autonity node sync
 
 ### 2. Fund the Oracle Wallet
 
-Fund the `oracle.key` wallet with ATN by using the `autonity wallet` command and selecting the "tx" menu.
+Fund oracle wallet (`oracle.key`) wallet with ATN by using the `autonity wallet` command and selecting "create transaction" menu.
 
 ### 3. Configure Plugins
 
@@ -123,7 +118,6 @@ nano $HOME/.autonity/oracle/plugins-conf.yml
 
 **Example Configuration**:  
 ![Example Configuration](plugins/photo_2024-12-19_10-13-22.jpg)
-
 ---
 
 ## Running Oracle Server
@@ -140,36 +134,50 @@ autonity oracle update         # Update Oracle server
 
 ---
 
-## Register Validator & Management
+## Manage Validator  
 
-### 1. Create a Validator
+Manage your validator using the following commands:  
 
-Register as a validator:
+```bash  
+autonity validator setup          # Validator setup  
+autonity validator info           # Display validator information  
+autonity validator list           # List all validators  
+autonity validator seat active    # Check the list validators in active seats  
+```  
 
-```bash
-autonity validator setup
-```
+When running `autonity validator setup` command you will be presented with the following options:
+1. **Create Validator**: Set up a new validator.  
+2. **Stake & Unstake Validator**: Manage the staking and unstaking your validator.  
+3. **Pause & Reactivate Validator**: Temporarily pause or reactivate your validator.  
+4. **Change Commission Validator**: Update the commission rate for your validator.  
 
-Follow the prompts to set up your validator.
+---  
 
-### 2. Validator Management
 
-Use the `autonity validator` command for validator management:
+## Swap
 
-```bash
-autonity validator <subcommands>
-```
+- Set Up Environment Variables
 
-Available subcommands:
+1. Edit the `.env` file:  
+   ```bash
+   nano $HOME/autonity/.env
+   ```
 
-- **`setup`**: Set up a validator.
-- Options: Create Validator, Bond/Unbond, Pause/Reactivate, Change Commission Rate
-- **`info`**        : Display validator information.
-- **`list`**        : List all validators.
-- **`seat active`** : Check for active seats.
-- **`committee`**   : Check if your validator is in the active committee.
+2. Add your details:  
+   ```plaintext
+   RPC_URL=your_rpc_url
+   SENDER_PRIVATE_KEY=your_private_key
+   RECIPIENT_ADDRESS=your_recipient_address
+   ```
 
-### Other Commands autonity
+- Run swap command:  
+  ```bash
+  autonity swap
+  ```
+
+---
+
+### All subcommands autonity
 
 - **`validator`** : Validator management
 - **`wallet`**    : Wallet management

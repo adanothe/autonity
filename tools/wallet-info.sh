@@ -13,7 +13,7 @@ find "$DIRECTORY" -type f -name "*.key" -exec sh -c '
         ntn_balance=$(echo "$account_info" | jq -r ".ntn_balance")
 
         echo "Address      : $address"
-        echo "Balance      : $balance"
+        echo "ATN Balance  : $balance"
         echo "NTN Balance  : $ntn_balance"
         echo "---------------------------------------------------------"
     done

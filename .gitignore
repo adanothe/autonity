@@ -1,4 +1,5 @@
 .env
+.venv
 
 # Devenv
 tiber-task/.devenv*
