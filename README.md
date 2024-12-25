@@ -81,6 +81,7 @@ autonity node start               # Start the node
 autonity node logs                # View node logs
 autonity node sync                # Check sync status
 autonity node restart             # Restart the node
+autonity node info                # Display node info
 autonity node stop                # Stop the node
 autonity node update              # Update the node
 ```

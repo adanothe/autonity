@@ -99,6 +99,7 @@ EOF
                 ;;
             update) docker compose -f "$DOCKER_COMPOSE" pull autonity && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
             stop) docker stop autonity ;;
+            info) $AUT node info | jq -r '. | to_entries[] | "\(.key): \(.value)"' ;;
             restart) docker restart autonity ;;
             help)
                 cat <<EOF
@@ -110,6 +111,7 @@ Available subcommands:
   restart - Restart node
   logs    - Display node logs
   sync    - Display sync status
+  info    - Display node info
   update  - Update node
   help    - Display help menu
 EOF
