@@ -29,25 +29,17 @@ services:
       - YOURIP=${YOURIP}
 
   oracle:
-    image: ghcr.io/autonity/autonity-oracle:latest
+    image: ghcr.io/autonity/autonity-oracle-bakerloo:v0.2.4
     container_name: oracle
-    command: >
-      -tip="1"
-      -key.file="/autoracle/oracle.key"
-      -key.password=${KEYPASSWORD}
-      -ws="ws://autonity:8546"
-      -plugin.dir="/usr/local/bin/plugins/"
-      -plugin.conf="/autoracle/plugins-conf.yml"
+    command: ["/autoracle/oracle_config.yml"] 
     volumes:
       - $HOME/.autonity/keystore/oracle.key:/autoracle/oracle.key
-      - $HOME/.autonity/oracle/plugins-conf.yml:/autoracle/plugins-conf.yml
+      - $HOME/.autonity/oracle/oracle_config.yml:/autoracle/oracle_config.yml
     stdin_open: true
     tty: true
     stop_grace_period: 180s
     depends_on:
       - autonity
-    environment:
-      - KEYPASSWORD=${KEYPASSWORD}
 
 networks:
   autonity_network:

@@ -5,14 +5,12 @@
 - **Official Documentation**: [Autonity Documentation](https://docs.autonity.org/)
 - **GitHub Repositories**: [Autonity GitHub](https://github.com/autonity/)
 - **Network Explorer**:
-  - [Piccadilly](https://piccadilly.autonity.org/)
   - [Bakerloo](https://bakerloo.autonity.org/)
 - **Validator Explorer**:
   - [Stakeflow](https://stakeflow.io/autonity-piccadilly)
   - [autland](https://autland.io/)
   - [Daic.capital](https://autonity.daic.capital/)
 - **RPC List**: [Chainlist](https://chainlist.org/?testnets=true&search=piccadilly)
-- **Tiber task Repositories**: [tiber-task](https://github.com/autonity/tiber-challenge)
 
 ---
 
@@ -104,7 +102,7 @@ Fund oracle wallet (`oracle.key`) wallet with ATN by using the `autonity wallet`
 
 ### 3. Configure Plugins
 
-Edit the `plugins-conf.yml` file to configure plugins. Obtain API keys from:
+Edit the `oracle_config.yml` file to configure plugins. Obtain API keys from:
 
 - [CurrencyFreaks](https://currencyfreaks.com)
 - [OpenExchangeRates](https://openexchangerates.org)
@@ -114,7 +112,7 @@ Edit the `plugins-conf.yml` file to configure plugins. Obtain API keys from:
 Edit the configuration:
 
 ```bash
-nano $HOME/.autonity/oracle/plugins-conf.yml
+nano $HOME/.autonity/oracle/oracle_config.yml
 ```
 
 **Example Configuration**:  
@@ -152,30 +150,6 @@ When running `autonity validator setup` command you will be presented with the f
 3. **Pause & Reactivate Validator**: Temporarily pause or reactivate your validator.  
 4. **Change Commission Validator**: Update the commission rate for your validator.  
 
----  
-
-
-## Swap
-
-- Set Up Environment Variables
-
-1. Edit the `.env` file:  
-   ```bash
-   nano $HOME/autonity/.env
-   ```
-
-2. Add your details:  
-   ```plaintext
-   RPC_URL=your_rpc_url
-   SENDER_PRIVATE_KEY=your_private_key
-   RECIPIENT_ADDRESS=your_recipient_address
-   ```
-
-- Run swap command:  
-  ```bash
-  autonity swap
-  ```
-
 ---
 
 ### All subcommands autonity
@@ -184,7 +158,6 @@ When running `autonity validator setup` command you will be presented with the f
 - **`wallet`**    : Wallet management
 - **`node`**      : Node management
 - **`oracle`**    : Oracle server management
-- **`swap`**      : On-chain swap
 - **`help`**      : Display help menu
 
 For more details, run:

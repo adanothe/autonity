@@ -10,7 +10,7 @@ scripts_dir="$autonity_home/scripts"
 bin_dir="$autonity_home/bin"
 env_file="$autonity_home/.env"
 autrc_file="$HOME/.autrc"
-plugins_conf="$autonity_home/plugins/plugins-conf.yml"
+plugins_conf="$autonity_home/plugins/oracle_config.yml"
 
 if [[ -f "$autonity_home/.env.example" ]]; then
     cp "$autonity_home/.env.example" "$env_file"
@@ -60,6 +60,6 @@ else
 fi
 
 cp "$bin_dir/"* /usr/bin/ 2>/dev/null || echo "No binaries to copy."
-cp "$plugins_conf" "$oracle_dir" 2>/dev/null || echo "No plugins-conf.yml to copy."
+cp "$plugins_conf" "$oracle_dir" 2>/dev/null || echo "No oracle_config.yml to copy."
 
 exit 0
