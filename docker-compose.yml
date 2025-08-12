@@ -1,10 +1,10 @@
 services:
   autonity:
-    image: ghcr.io/autonity/autonity:latest
+    image: ${AUTONITY_IMAGE}
     container_name: autonity
     command: >
       --datadir /autonity-chaindata
-      --piccadilly
+      --bakerloo
       --syncmode full 
       --http
       --http.addr 0.0.0.0
@@ -22,14 +22,14 @@ services:
       - "30303:30303"
       - "30303:30303/udp"
       - "6060:6060"
+      - "20203:20203/tcp"
+      - "20203:20203/udp"
     stdin_open: true
     tty: true
     stop_grace_period: 180s
-    environment:
-      - YOURIP=${YOURIP}
 
   oracle:
-    image: ghcr.io/autonity/autonity-oracle-bakerloo:v0.2.4
+    image: ${ORACLE_IMAGE}
     container_name: oracle
     command: ["/autoracle/oracle_config.yml"] 
     volumes:

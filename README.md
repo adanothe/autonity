@@ -7,7 +7,7 @@
 - **Network Explorer**:
   - [Bakerloo](https://bakerloo.autonity.org/)
 - **Validator Explorer**:
-  - [Stakeflow](https://stakeflow.io/autonity-piccadilly)
+  - [Stakeflow](https://stakeflow.io/autonity-bakerloo/)
   - [autland](https://autland.io/)
   - [Daic.capital](https://autonity.daic.capital/)
 - **RPC List**: [Chainlist](https://chainlist.org/?testnets=true&search=piccadilly)

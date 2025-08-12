@@ -1,152 +1,197 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-AUT=$(command -v aut)
-AUTONITY=$(command -v autonity)
-TOOLS="$HOME/autonity/tools"
-DOCKER_COMPOSE="$HOME/autonity/docker-compose.yml"
-VALIDATORADDRESS=$(grep validator= "$HOME/.autrc" | cut -d'=' -f2 | tr -d ' ')
-VENV_DIR="$HOME/.autvenv/bin/python"
+set -euo pipefail
 
+readonly TOOLS_DIR="${HOME}/autonity/tools"
+readonly DOCKER_COMPOSE_FILE="${HOME}/autonity/docker-compose.yml"
+readonly VENV_PYTHON_PATH="$HOME/.autvenv/bin/python"
 
-display_help() {
-    cat <<EOF
-Usage: autonity <command> <subcommand>
-
-Available commands:
-  validator   - Validator management
-  wallet      - Wallet management
-  node        - Node management
-  oracle      - Oracle server management
-  swap        - Swap oncahin
-  help        - Display help menu
-EOF
-    exit 0
+die() {
+    printf "Error: %s\n" "$1" >&2
+    exit 1
 }
 
-if [[ $# -eq 0 ]]; then
-    display_help
-    exit 1
-fi
+display_main_help() {
+    cat <<EOF
+Usage: autonity <command> [subcommand] [args]
 
-case "$1" in
-    validator)
-        case "$2" in
-            setup)
-                while true; do
-                    clear
-                    cat <<EOF
-===== Validator Setup =====
-1. Create Validator
-2. Stake & Unstake validator
-3. Pause & Reactivate Validator
-4. Change Commission Validator
-0. Exit
-======================================
+Available Commands:
+  validator   Validator management
+  wallet      Wallet management
+  node        Node management (via Docker)
+  oracle      Oracle server management (via Docker)
+  help        Display this help message
+
+Run 'autonity <command> help' for more detailed help.
 EOF
-                    read -p "Enter your choice (1-4): " choice
-                    case $choice in
-                        1) $TOOLS/create-validator.sh ;;
-                        2) $TOOLS/bond-unbond-validator.sh ;;
-                        3) $TOOLS/pause-reactivate-validator.sh ;;
-                        4) $TOOLS/change-validator-commission.sh ;;
-                        0) echo "Exiting..." && exit 0 ;;
-                        *) echo "Invalid choice. Please enter a number between 1 and 4." ;;
-                    esac
-                    read -p "Press Enter to continue..."
-                done
-                ;;
-            info) $TOOLS/validatorinfo.sh ;;
-            list) $AUT validator list | awk '{print NR".",$0}' ;;
-            seat)
-                if [[ "$3" == "active" ]]; then
-                    $TOOLS/committe.sh
-                else
-                    echo "Invalid subcommand. Use 'active' with 'seat'."
-                fi
-                ;;
-            help)
-                cat <<EOF
+}
+
+check_prerequisites() {
+    for cmd in aut docker jq; do
+        command -v "$cmd" &>/dev/null || die "Command '$cmd' not found. Please install it first."
+    done
+
+    [[ -d "$TOOLS_DIR" ]] || die "Tools directory not found at '$TOOLS_DIR'."
+    [[ -f "$DOCKER_COMPOSE_FILE" ]] || die "docker-compose.yml not found at '$DOCKER_COMPOSE_FILE'."
+    [[ -x "$VENV_PYTHON_PATH" ]] || die "Python virtual environment not found or not executable at '$VENV_PYTHON_PATH'."
+}
+
+manage_docker_service() {
+    local service_name="$1"
+    local action="$2"
+
+    case "$action" in
+    start) docker compose -f "$DOCKER_COMPOSE_FILE" up -d "$service_name" ;;
+    stop) docker stop "$service_name" ;;
+    restart) docker restart "$service_name" ;;
+    logs) docker logs -f --tail=20 "$service_name" ;;
+    update)
+        echo "Pulling latest image for $service_name..."
+        docker compose -f "$DOCKER_COMPOSE_FILE" pull "$service_name"
+        echo "Restarting $service_name service with the new image..."
+        docker compose -f "$DOCKER_COMPOSE_FILE" up -d "$service_name"
+        ;;
+    *) die "Invalid subcommand for '$service_name': '$action'." ;;
+    esac
+}
+
+menu_validator_setup() {
+    while true; do
+        clear
+        cat <<EOF
+===== Validator Setup Menu =====
+1. Create New Validator
+2. Stake & Unstake Validator
+3. Pause & Reactivate Validator
+4. Change Validator Commission
+0. Return to main menu
+================================
+EOF
+        read -p "Enter your choice [0-4]: " choice
+
+        case "$choice" in
+        1) "$TOOLS_DIR/create-validator.sh" ;;
+        2) "$TOOLS_DIR/bond-unbond-validator.sh" ;;
+        3) "$TOOLS_DIR/pause-reactivate-validator.sh" ;;
+        4) "$TOOLS_DIR/change-validator-commission.sh" ;;
+        0) break ;;
+        *) echo "Invalid choice." ;;
+        esac
+        echo
+        read -n 1 -s -r -p "Press any key to continue..."
+    done
+}
+
+handle_validator() {
+    case "$1" in
+    setup) menu_validator_setup ;;
+    info) "$TOOLS_DIR/validatorinfo.sh" "${@:2}" ;;
+    list) aut validator list | awk '{print NR".", $0}' ;;
+    "seat")
+        if [[ "${2:-}" == "active" ]]; then
+            "$TOOLS_DIR/committe.sh"
+        else
+            echo "Error: Use 'autonity validator seat active'"
+        fi
+        ;;
+    help | --help)
+        cat <<EOF
 Usage: autonity validator <subcommand>
 
-Available subcommands:
-  setup       - Validator setup
-  info        - Display validator info
-  list        - List all validators
-  seat active - Check list validators in the active seats
-  help        - Display help menu
+Subcommands for validator management:
+  setup       Display the interactive validator setup menu
+  info [addr] Display info for the default or a specific validator
+  list        List all validators
+  seat active List validators in the active committee seats
 EOF
-                ;;
-            *) $AUTONITY validator help ;;
-        esac
         ;;
-    wallet)
-        $TOOLS/wallet.sh
+    *)
+        aut validator "$@"
         ;;
-    node)
-        case "$2" in
-            start) docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
-            logs) docker logs -f --tail=20 autonity ;;
-            sync)
-                $AUT node info | jq -r '
-                    if .eth_syncing == false then
-                        "Node already synced"
-                    elif .eth_syncing | has("currentBlock") then
-                        "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
-                    else
-                        "Sync information not available"
-                    end
-                '
-                ;;
-            update) docker compose -f "$DOCKER_COMPOSE" pull autonity && docker compose -f "$DOCKER_COMPOSE" up -d autonity ;;
-            stop) docker stop autonity ;;
-            info) $AUT node info | jq -r '. | to_entries[] | "\(.key): \(.value)"' ;;
-            restart) docker restart autonity ;;
-            help)
-                cat <<EOF
+    esac
+}
+
+handle_node() {
+    case "$1" in
+    start | stop | restart | logs | update)
+        manage_docker_service "autonity" "$1"
+        ;;
+    sync)
+        aut node info | jq -r '
+              if .eth_syncing == false then
+                "Node is already synced."
+              elif .eth_syncing | has("currentBlock") then
+                "Your node height: \(.eth_syncing.currentBlock)\nNetwork height: \(.eth_syncing.highestBlock)\nBlocks left: \(.eth_syncing.highestBlock - .eth_syncing.currentBlock)"
+              else
+                "Sync information not available."
+              end'
+        ;;
+    info)
+        aut node info | jq
+        ;;
+    help | --help)
+        cat <<EOF
 Usage: autonity node <subcommand>
 
-Available subcommands:
-  start   - Start node
-  stop    - Stop node
-  restart - Restart node
-  logs    - Display node logs
-  sync    - Display sync status
-  info    - Display node info
-  update  - Update node
-  help    - Display help menu
+Subcommands for node management:
+  start     Start the node
+  stop      Stop the node
+  restart   Restart the node
+  logs      Show the node logs
+  sync      Display synchronization status
+  info      Display raw node info (JSON)
+  update    Update the node image and restart
 EOF
-                ;;
-            *) $AUTONITY node help ;;
-        esac
         ;;
-    oracle)
-        case "$2" in
-            start) docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
-            logs) docker logs -f --tail=20 oracle ;;
-            stop) docker stop oracle ;;
-            restart) docker restart oracle ;;
-            update) docker compose -f "$DOCKER_COMPOSE" pull oracle && docker compose -f "$DOCKER_COMPOSE" up -d oracle ;;
-            help)
-                cat <<EOF
+    *)
+        aut node "$@"
+        ;;
+    esac
+}
+
+handle_oracle() {
+    case "$1" in
+    start | stop | restart | logs | update)
+        manage_docker_service "oracle" "$1"
+        ;;
+    help | --help)
+        cat <<EOF
 Usage: autonity oracle <subcommand>
 
-Available subcommands:
-  start   - Start oracle
-  stop    - Stop oracle
-  restart - Restart oracle
-  logs    - Check oracle logs
-  update  - Update oracle
-  help    - Display help menu
+Subcommands for oracle management:
+  start     Start the oracle
+  stop      Stop the oracle
+  restart   Restart the oracle
+  logs      Show the oracle logs
+  update    Update the oracle image and restart
 EOF
-                ;;
-            *) $AUTONITY oracle help ;;
-        esac
         ;;
-    swap)
-         $VENV_DIR $HOME/autonity/tiber-task/swap.py
+    *)
+        aut oracle "$@"
         ;;
-    help) display_help ;;
-    *) echo "Invalid command"; display_help ;;
-esac
+    esac
+}
 
-exit 0
+main() {
+    [[ $# -eq 0 ]] && display_main_help && exit 0
+
+    check_prerequisites
+
+    local command="$1"
+    shift
+
+    case "$command" in
+    validator) handle_validator "$@" ;;
+    wallet) "$TOOLS_DIR/wallet.sh" ;;
+    node) handle_node "$@" ;;
+    oracle) handle_oracle "$@" ;;
+    help | --help) display_main_help ;;
+    *)
+        echo "Unknown command: '$command'"
+        display_main_help
+        exit 1
+        ;;
+    esac
+}
+
+main "$@"

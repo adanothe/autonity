@@ -1,28 +1,54 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-autonity_dir="$HOME/.autonity"
-autonity_keys_file="$HOME/autonity-chaindata/autonity/autonitykeys"
-current_date=$(date +%Y-%m-%d_%H-%M-%S)
-autonity_backup_filename="backup-keystore_$current_date.tar.gz"
-keys_backup_filename="backup-autonitykeys_$current_date.tar.gz"
-backup_dir="$HOME/backups"
-mkdir -p "$backup_dir"
+set -euo pipefail
 
-create_backup() {
-    local source_dir=$1
-    local backup_filename=$2
-    tar -czvf "$backup_dir/$backup_filename" -C "$(dirname "$source_dir")" "$(basename "$source_dir")"
+main() {
+    echo "Starting backup process..."
+
+    local -r backup_base_dir="$HOME/backups"
+    local -r current_timestamp
+    current_timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+
+    mkdir -p "$backup_base_dir"
+
+    declare -A backup_targets
+    backup_targets=(
+        ["$HOME/.autonity"]="backup-autonity-dir_${current_timestamp}.tar.gz"
+        ["$HOME/autonity-chaindata/autonity/autonitykeys"]="backup-autonitykeys-file_${current_timestamp}.tar.gz"
+    )
+
+    local all_successful=true
+
+    for source_path in "${!backup_targets[@]}"; do
+        local backup_filename="${backup_targets[$source_path]}"
+        local full_backup_path="$backup_base_dir/$backup_filename"
+
+        echo
+        echo "Processing: $source_path"
+
+        if [[ ! -e "$source_path" ]]; then
+            echo "Warning: Source path does not exist. Skipping."
+            all_successful=false
+            continue
+        fi
+
+        tar -czf "$full_backup_path" -C "$(dirname "$source_path")" "$(basename "$source_path")"
+
+        if [[ -f "$full_backup_path" ]]; then
+            echo "Success: Backup created at $full_backup_path"
+        else
+            echo "Error: Failed to create backup for $source_path"
+            all_successful=false
+        fi
+    done
+
+    echo
+    if [[ "$all_successful" == true ]]; then
+        echo "All backup tasks completed successfully."
+    else
+        echo "One or more backup tasks had issues."
+        exit 1
+    fi
 }
 
-create_backup "$autonity_dir" "$autonity_backup_filename"
-create_backup "$autonity_keys_file" "$keys_backup_filename"
-
-if [ $? -eq 0 ]; then
-    echo "Backup folder ~/.autonity created successfully: $backup_dir/$autonity_backup_filename"
-    echo "Backup file autonitykeys created successfully: $backup_dir/$keys_backup_filename"
-else
-    echo "Error: Failed to create backup."
-    exit 1
-fi
-
-exit 0
+main

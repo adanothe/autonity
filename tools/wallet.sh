@@ -1,178 +1,198 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-TOOLS="$HOME/autonity/tools"
-env_file="$HOME/autonity/.env"
-keystore_dir="$HOME/.autonity/keystore"
-temp_file="$PWD/${wallet_name}.priv"
-rpc_url="https://picadilly.autonity-apis.com"
+set -euo pipefail
 
-if [ -f "$env_file" ]; then
-    source "$env_file"
-else
-    echo "Error: .env file not found in $HOME/autonity."
+readonly TOOLS_DIR="${HOME}/autonity/tools"
+readonly ENV_FILE="${HOME}/autonity/.env"
+readonly KEYSTORE_DIR="${HOME}/.autonity/keystore"
+
+die() {
+    printf "Error: %s\n" "$1" >&2
     exit 1
-fi
+}
 
-ethkey=$(command -v ethkey)
-if [ -z "$ethkey" ]; then
-    echo "Error: 'ethkey' command not found."
-    exit 1
-fi
+check_prerequisites() {
+    for cmd in aut ethkey expect jq; do
+        command -v "$cmd" &>/dev/null || die "Command '$cmd' not found. Please install it."
+    done
 
-if [ ! -d "$keystore_dir" ]; then
-    echo "Error: Keystore directory not found in $keystore_dir."
-    exit 1
-fi
+    if [[ ! -f "$ENV_FILE" ]]; then
+        die ".env file not found at '$ENV_FILE'."
+    fi
+    source "$ENV_FILE"
 
-while true; do
-    clear
+    if [[ -z "${KEYPASSWORD:-}" ]]; then
+        die "KEYPASSWORD is not set or is empty in '$ENV_FILE'."
+    fi
+    if [[ -z "${RPC_URL:-}" ]]; then
+        die "RPC_URL is not set or is empty in '$ENV_FILE'."
+    fi
+
+    mkdir -p "$KEYSTORE_DIR"
+}
+
+show_menu() {
     cat <<EOF
 ===== Wallet Menu =====
 1. Create new wallet
 2. Import wallet using private key
 3. Export private key from existing wallet
-4. wallet info
-5. create signature message
-6. create signature message with validator key
-7. backup wallet
-8. create transaction
+4. Show wallet info
+5. Create signature message
+6. Backup wallet
+7. Create transaction
 0. Exit
-=====================================
+=======================
 EOF
-    read -p "Enter your choice (0-5): " choice
+}
 
-    case $choice in
-        1)
-            echo "Autonity Wallet - Create New Wallet"
-            echo "-----------------------------------"
+select_keyfile() {
+    mapfile -d '' keyfiles < <(find "$KEYSTORE_DIR" -type f -name '*.key' -print0)
 
-            mkdir -p "$keystore_dir"
-            read -p "Enter the name for the new wallet: " wallet_name
-            expect -c "
-            spawn aut account new -k $keystore_dir/$wallet_name.key
-            expect \"Password for new account:\"
-            send \"$KEYPASSWORD\r\"
-            expect \"Confirm account password:\"
-            send \"$KEYPASSWORD\r\"
-            expect eof
-            " >/dev/null 2>&1
+    if [[ ${#keyfiles[@]} -eq 0 ]]; then
+        die "No wallet (.key) files found in '$KEYSTORE_DIR'."
+    fi
 
-            if [ ! -f "$keystore_dir/$wallet_name.key" ]; then
-                echo "Error: Failed to create wallet."
-                exit 1
-            fi
+    echo "Available wallets:" >&2
+    for i in "${!keyfiles[@]}"; do
+        printf "%d. %s\n" "$((i + 1))" "$(basename "${keyfiles[$i]}")" >&2
+    done
 
-            wallet_address=$(aut account info -r "$rpc_url" -k "$keystore_dir/$wallet_name.key" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
-            echo "Your wallet has been created successfully!"
-            echo "address: $wallet_address"
-            echo "Wallet keyfile path: $keystore_dir/$wallet_name.key"
-            ;;
+    local choice
+    read -p "Choose a wallet (1-${#keyfiles[@]}): " choice
 
-        2)
-            echo "Autonity Wallet - Import Wallet Using Private Key"
-            echo "-------------------------------------------------"
+    if ! [[ "$choice" =~ ^[0-9]+$ && "$choice" -ge 1 && "$choice" -le ${#keyfiles[@]} ]]; then
+        die "Invalid wallet choice."
+    fi
 
-            read -p "Enter wallet name: " wallet_name
-            read -sp "Enter private key: " private_key
-            echo
+    echo "${keyfiles[$((choice - 1))]}"
+}
 
-            if [ -z "$private_key" ]; then
-                echo "Error: Private key cannot be empty."
-                exit 1
-            fi
+create_wallet() {
+    echo "--- Create New Wallet ---"
+    read -p "Enter the name for the new wallet: " wallet_name
+    if [[ -z "$wallet_name" ]]; then
+        die "Wallet name cannot be empty."
+    fi
 
-            echo "$private_key" >"$temp_file"
+    local keyfile_path="${KEYSTORE_DIR}/${wallet_name}.key"
+    if [[ -f "$keyfile_path" ]]; then
+        die "A wallet file named '${wallet_name}.key' already exists."
+    fi
 
-            import_output=$(expect -c "
-            spawn aut account import-private-key \"$temp_file\"
-            expect \"Password for new account:\"
-            send \"$KEYPASSWORD\r\"
-            expect \"Confirm account password:\"
-            send \"$KEYPASSWORD\r\"
-            expect eof
-            " 2>&1)
+    local creation_output
+    creation_output=$(expect << EOF
+    set timeout 20
+    spawn aut account new -k "$keyfile_path"
+    expect "Password for new account:"
+    send -- "$KEYPASSWORD\r"
+    expect "Confirm account password:"
+    send -- "$KEYPASSWORD\r"
+    expect eof
+EOF
+)
 
-            keystore_file=$(echo "$import_output" | grep -o "$keystore_dir/UTC--[^\"]*" | head -n 1)
-            keystore_file=$(echo "$keystore_file" | tr -d '\r')
-            new_keystore_file="$HOME/.autonity/keystore/${wallet_name}.key"
-            mv "$keystore_file" "$new_keystore_file"
+    local address_line
+    address_line=$(echo "$creation_output" | grep -oE '0x[a-fA-F0-9]{40}.*')
+    
+    local wallet_address returned_key_path
+    read -r wallet_address returned_key_path < <(echo "$address_line")
+    
+    if ! [[ "$wallet_address" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+        die "Failed to create wallet or parse address from output."
+    fi
 
-            echo "Keystore file saved to: $new_keystore_file"
-            rm "$temp_file"
-            ;;
+    echo "✅ Wallet created successfully!"
+    echo "   Address: $wallet_address"
+    echo "   Keyfile Path: $returned_key_path"
+}
 
-        3)
-            echo "Autonity Wallet - Export Private Key"
-            echo "--------------------------------------"
+import_wallet() {
+    echo "--- Import Wallet Using Private Key ---"
+    read -p "Enter a name for the imported wallet: " wallet_name
+    if [[ -z "$wallet_name" ]]; then
+        die "Wallet name cannot be empty."
+    fi
+    
+    read -sp "Enter private key: " private_key
+    echo
+    if [[ -z "$private_key" ]]; then
+        die "Private key cannot be empty."
+    fi
 
-            keyfiles=($(find "$keystore_dir" -type f -name '*.key'))
-            if [ ${#keyfiles[@]} -eq 0 ]; then
-                echo "No wallet files found in $keystore_dir."
-                exit 1
-            fi
+    local temp_file
+    temp_file=$(mktemp)
+    trap 'rm -f "$temp_file"' EXIT
+    echo "$private_key" > "$temp_file"
 
-            echo "Available wallets:"
-            for i in "${!keyfiles[@]}"; do
-                echo "$((i + 1)). $(basename "${keyfiles[$i]}")"
-            done
+    local import_output
+    import_output=$(expect << EOF
+    set timeout 20
+    spawn aut account import-private-key "$temp_file"
+    expect "Password for new account:"
+    send -- "$KEYPASSWORD\r"
+    expect "Confirm account password:"
+    send -- "$KEYPASSWORD\r"
+    expect eof
+EOF
+)
+    local generated_keyfile
+    generated_keyfile=$(echo "$import_output" | grep -oE "${KEYSTORE_DIR}/UTC--[^\"]+" | tr -d '\r' | head -n 1)
 
-            read -p "Choose a wallet to retrieve the private key (1-${#keyfiles[@]}): " keyfile_choice
+    if [[ -z "$generated_keyfile" || ! -f "$generated_keyfile" ]]; then
+        die "Failed to import key. Could not find the generated keyfile."
+    fi
+    
+    local new_keyfile_path="${KEYSTORE_DIR}/${wallet_name}.key"
+    mv "$generated_keyfile" "$new_keyfile_path"
+    
+    echo "✅ Keystore file saved to: $new_keyfile_path"
+}
 
-            if [[ ! $keyfile_choice =~ ^[0-9]+$ ]] || [ "$keyfile_choice" -lt 1 ] || [ "$keyfile_choice" -gt "${#keyfiles[@]}" ]; then
-                echo "Invalid choice."
-                exit 1
-            fi
+export_private_key() {
+    echo "--- Export Private Key ---"
+    local chosen_keyfile
+    chosen_keyfile=$(select_keyfile)
+    echo "Selected keyfile: $(basename "$chosen_keyfile")"
 
-            chosen_keyfile="${keyfiles[$((keyfile_choice - 1))]}"
-            echo "Selected keyfile: $(basename "$chosen_keyfile")"
+    local private_key
+    private_key=$(ethkey inspect --private "$chosen_keyfile" <<<"$KEYPASSWORD" | awk '/Private key/ {print $3}')
+    if [[ -z "$private_key" ]]; then
+        die "Failed to retrieve private key. Check your password."
+    fi
 
-            if [ -z "$KEYPASSWORD" ]; then
-                echo "Error: KEYPASSWORD not set in .env file."
-                exit 1
-            fi
+    local private_key_file="${KEYSTORE_DIR}/$(basename "$chosen_keyfile" .key).priv"
+    echo "$private_key" >"$private_key_file"
+    
+    echo "✅ Private key exported successfully."
+    echo "   Your Private Key: $private_key"
+    echo "   Saved to: $private_key_file"
+    echo "   ⚠️ WARNING: Handle this key with extreme care."
+}
 
-            private_key=$($ethkey inspect --private "$chosen_keyfile" <<<"$KEYPASSWORD" 2>/dev/null | grep "Private key" | awk '{print $3}')
-            if [ -z "$private_key" ]; then
-                echo "Error: Failed to retrieve private key."
-                exit 1
-            fi
+main() {
+    check_prerequisites
+    
+    while true; do
+        clear
+        show_menu
+        read -p "Enter your choice: " choice
+        
+        echo
+        case "$choice" in
+            1) create_wallet ;;
+            2) import_wallet ;;
+            3) export_private_key ;;
+            4) bash "$TOOLS_DIR/wallet-info.sh" ;;
+            5) bash "$TOOLS_DIR/signature.sh" ;;
+            6) bash "$TOOLS_DIR/backup-wallet.sh" ;;
+            7) bash "$TOOLS_DIR/tx.sh" ;;
+            0) clear; echo "Exiting..."; exit 0 ;;
+            *) echo "Invalid choice. Please try again." ;;
+        esac
+        echo
+        read -n 1 -s -r -p "Press any key to continue..."
+    done
+}
 
-            private_key_file="$keystore_dir/$(basename "$chosen_keyfile" .key).priv"
-            echo "$private_key" >"$private_key_file"
-            echo "your private key: $private_key"
-            echo "Private key saved to $private_key_file"
-            ;;
-
-        4)
-            bash "$TOOLS/wallet-info.sh"
-            ;;
-
-        5)
-            bash "$TOOLS/signature.sh"
-            ;;
-
-        6) 
-            bash "$TOOLS/validator-signature.sh"
-            ;;
-
-        7)
-            bash "$TOOLS/backup-wallet.sh"
-            ;;
-
-        8)
-            bash "$TOOLS/tx.sh"
-            ;;
-
-        0)
-            echo "Exiting..."
-            exit 0
-            ;;
-
-        *)
-            echo "Invalid choice. Please enter a number between 0 and 5."
-            ;;
-    esac
-
-    read -p "Press Enter to continue..."
-    clear
-done
+main

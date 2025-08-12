@@ -1,75 +1,108 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-display_error() {
-    echo "Error: $1" >&2
+set -euo pipefail
+
+readonly ENV_FILE="$HOME/autonity/.env"
+readonly KEYSTORE_DIR="$HOME/.autonity/keystore"
+
+die() {
+    printf "Error: %s\n" "$1" >&2
     exit 1
 }
 
-load_env_variables() {
-    local env_file="$HOME/autonity/.env"
+check_prerequisites() {
+    for cmd in aut jq; do
+        command -v "$cmd" &>/dev/null || die "Command '$cmd' not found. Please install it."
+    done
 
-    if [ -f "$env_file" ]; then
-        source "$env_file"
-    else
-        display_error "File .env not found in $HOME/autonity."
+    if [[ ! -f "$ENV_FILE" ]]; then
+        die ".env file not found at '$ENV_FILE'."
+    fi
+
+    if [[ ! -d "$KEYSTORE_DIR" ]]; then
+        die "Keystore directory not found at '$KEYSTORE_DIR'."
     fi
 }
 
-check_aut_command() {
-    if ! command -v aut &>/dev/null; then
-        display_error "'aut' command not found."
+select_keyfile() {
+    mapfile -d '' keyfiles < <(find "$KEYSTORE_DIR" -type f -name '*.key' -print0)
+
+    if [[ ${#keyfiles[@]} -eq 0 ]]; then
+        die "No wallet (.key) files found in '$KEYSTORE_DIR'."
     fi
+
+    echo "Available wallets to sign with:" >&2
+    for i in "${!keyfiles[@]}"; do
+        printf "%d. %s\n" "$((i + 1))" "$(basename "${keyfiles[$i]}")" >&2
+    done
+
+    local choice
+    read -p "Choose a wallet (1-${#keyfiles[@]}): " choice
+
+    if ! [[ "$choice" =~ ^[0-9]+$ && "$choice" -ge 1 && "$choice" -le ${#keyfiles[@]} ]]; then
+        die "Invalid wallet choice."
+    fi
+
+    echo "${keyfiles[$((choice - 1))]}"
 }
 
-sign_message() {
+get_signing_address() {
+    local keyfile="$1"
+    aut account info --keyfile "$keyfile" | jq -r '.[0].account'
+}
+
+sign_message_with_key() {
     local message="$1"
-    local keyfile="$HOME/.autonity/keystore/treasury.key"
-    local password="$KEYPASSWORD"
+    local keyfile="$2"
 
-    if [ -z "$message" ]; then
-        display_error "Message cannot be empty."
-    fi
-
-    if [ -z "$password" ]; then
-        display_error "Password not found in .env file."
-    fi
-
-    local signature
-    signature=$(aut account sign-message "$message" --keyfile "$keyfile" --password "$password" 2>/dev/null)
-    if [ -z "$signature" ]; then
-        display_error "Failed to generate signature."
-    fi
-
-    echo "$signature"
-}
-
-get_autonity_address() {
-    local keyfile="$HOME/.autonity/keystore/treasury.key"
-
-    local autonity_info
-    autonity_info=$(aut account info --keyfile "$keyfile" 2>/dev/null)
-
-    local autonity_address
-    autonity_address=$(echo "$autonity_info" | grep -o '"account": *"[^"]*"' | awk -F'"' '{print $4}')
-    if [ -z "$autonity_address" ]; then
-        display_error "Failed to retrieve Autonity address."
-    fi
-
-    echo "$autonity_address"
+    aut account sign-message "$message" --keyfile "$keyfile"
 }
 
 main() {
-    load_env_variables
-    check_aut_command
+    check_prerequisites
 
-    echo -n "Enter the message to sign: "
-    read -r message
+    source "$ENV_FILE"
+    if [[ -z "${KEYPASSWORD:-}" ]]; then
+        die "KEYPASSWORD is not set or is empty in '$ENV_FILE'."
+    fi
 
-    echo -n "signature hash: "
-    sign_message "$message"
+    echo "--- Autonity Message Signing Utility ---"
+    echo
 
-    echo -n "sign with address: "
-    get_autonity_address
+    local chosen_keyfile
+    chosen_keyfile=$(select_keyfile)
+
+    local address
+    address=$(get_signing_address "$chosen_keyfile")
+    if [[ -z "$address" ]]; then
+        die "Failed to retrieve the signing address from the keyfile."
+    fi
+
+    echo
+    echo "Using Wallet: $(basename "$chosen_keyfile")"
+    echo "Signing Address: $address"
+    echo
+
+    local message
+    read -p "Enter the message to sign: " message
+    if [[ -z "$message" ]]; then
+        die "Message cannot be empty."
+    fi
+
+    export KEYFILEPWD="$KEYPASSWORD"
+
+    local signature
+    signature=$(sign_message_with_key "$message" "$chosen_keyfile")
+    if [[ -z "$signature" ]]; then
+        die "Failed to generate the signature. Check your password or keyfile."
+    fi
+
+    echo
+    echo "----------------------------------------"
+    echo "Signature Generated Successfully"
+    echo "----------------------------------------"
+    echo "Address:   $address"
+    echo "Signature: $signature"
 }
 
 main
